@@ -6,50 +6,66 @@ from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import divides, exists
 from seisflows.tools.config import loadclass, ParameterObj
 
-PAR = ParameterObj('parameters')
-PATH = ParameterObj('paths')
+PAR = ParameterObj('SeisflowsParameters')
+PATH = ParameterObj('SeisflowsPaths')
 
+import system
+import solver
+import optimize
+import preprocess
+import postprocess
 
 
 class FwiNewton(loadclass('workflow', 'inversion')):
     """ Inversion with truncated Newton model updates
     """
 
+    def check(self):
+        super(FwiNewton, self).check()
+
+        if PAR.OPTIMIZE != 'Newton':
+            raise Exception
+
+        if  PAR.PREPROCESS != 'Newton':
+            raise Exception
+
+        if  PAR.POSTPROCESS != 'Newton':
+            raise Exception
+
+
     def compute_direction(self):
         """ Computes search direction
         """
         self.evaluate_gradient()
 
-        self.optimize.initialize_newton()
+        optimize.initialize_newton()
         for self.ilcg in range(1, PAR.LCGMAX+1):
             self.apply_hessian()
-            isdone = self.optimize.update_newton()
+            isdone = optimize.iterate_newton()
             if isdone:
                 break
 
+
     def apply_hessian(self):
         """ Computes the action of the Hessian on a given vector through
-          appropriate solver call
+          solver calls
         """
         if PAR.VERBOSE:
             print " LCG iteration", self.ilcg
 
         self.prepare_model(path=PATH.HESS, suffix='lcg')
 
-        system.run(solver.apply_hess,
+        system.run('solver', 'apply_hess',
                    hosts='all',
-                   path=PATH.HESS,
-                   hessian='Newton')
+                   path=PATH.HESS)
 
-        self.postprocess.process_kernels(
-            input=PATH.HESS)
+        postprocess.process_kernels(
+            path=PATH.HESS,
+            tag='newton_lcg')
 
-        src = PATH.POSTPROCESS + '/' + 'gradient'
-        g = solver.merge(solver.load(src))
-
-        dst = PATH.OPTIMIZE + '/' + 'g_lcg'
-        savenpy(dst, g)
-
-        unix.rm(PATH.HESS)
+        unix.rm(PATH.HESS+'_debug')
+        unix.mv(PATH.HESS, PATH.HESS+'_debug')
         unix.mkdir(PATH.HESS)
+
+
 
