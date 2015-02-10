@@ -61,7 +61,7 @@ class GaussNewton(loadclass('optimize', 'base')):
 
         s = np.dot(g, p)
         if s >= 0:
-            print ' Newton failed [not a descent direction]'
+            print ' Gauss Newton failed [not a descent direction]'
             p, isdone = -g, True
 
         if isdone:
