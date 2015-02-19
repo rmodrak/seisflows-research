@@ -81,6 +81,32 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         raise Exception('Not implemented for CUBIT models.')
 
 
+    def smooth(self, path='', tag='gradient', span=0.):
+        """ Wrapper for legacy version of xsum_kernels
+        """
+        unix.cd(self.getpath)
+
+        # apply smoothing operator
+        for name in self.parameters:
+            print ' smoothing', name
+            self.mpirun(
+                PATH.SPECFEM_BIN +'/'+ 'xsmooth_sem '
+                + str(span) + ' '
+                + str(span) + ' '
+                + name + ' '
+                + path +'/'+ tag + '/ '
+                + path +'/'+ tag + '/ ')
+
+        # remove old kernels
+        src = path +'/'+ tag
+        dst = path +'/'+ tag + '_nosmooth'
+        unix.mkdir(dst)
+        for name in self.parameters:
+            unix.mv(glob(src+'/*'+name+'.bin'), dst)
+        unix.rename('_smooth', '', glob(src+'/*'))
+        print ''
+
+
     def import_model(self, path):
         src = join(path, 'model')
         dst = self.getpath +'/'+ 'OUTPUT_FILES'
