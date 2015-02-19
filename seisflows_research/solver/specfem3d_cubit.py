@@ -60,7 +60,6 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         print ''
 
         self.initialize_solver_directories()
-        unix.touch('OUTPUT_FILES/values_from_mesh.txt')
         unix.cd(self.getpath)
         unix.cp(glob(model_path +'/'+ '*'), self.getpath +'/'+ 'OUTPUT_FILES')
         self.export_model(PATH.OUTPUT +'/'+ model_name)
@@ -71,17 +70,6 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         """
         setpar('SIMULATION_TYPE', '1')
         setpar('SAVE_FORWARD', '.true.')
-        #self.mpirun('bin/xgenerate_databases')
-        self.mpirun('bin/xspecfem3D')
-
-
-    def adjoint(self):
-        """ Calls SPECFEM3D adjoint solver
-        """
-        setpar('SIMULATION_TYPE', '3')
-        setpar('SAVE_FORWARD', '.false.')
-        unix.rm('SEM')
-        unix.ln('traces/adj', 'SEM')
         self.mpirun('bin/xspecfem3D')
 
 
