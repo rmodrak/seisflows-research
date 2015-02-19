@@ -4,7 +4,7 @@ PAR = ParameterObj('SeisflowsParameters')
 PATH = ParameterObj('SeisflowsPaths')
 
 
-class specfem3d_Thomsen(loadclass('extensions.solver', 'specfem3d_legacy')):
+class Thomsen_base(loadclass('extensions.solver', 'specfem3d_legacy')):
     # model parameters expected by solver
     model_parameters = []
     model_parameters += ['rho']
@@ -23,10 +23,6 @@ class specfem3d_Thomsen(loadclass('extensions.solver', 'specfem3d_legacy')):
     inversion_parameters += ['epsilon']
     inversion_parameters += ['delta']
     inversion_parameters += ['gamma']
-
-    # data channels
-    channels = []
-    channels += ['x']
 
     kernel_map = {
         'rho': 'rho_kernel',

@@ -6,7 +6,6 @@ from os.path import join
 import numpy as np
 
 import seisflows.seistools.specfem3d as solvertools
-from seisflows.seistools.io import load
 from seisflows.seistools.shared import getpar, setpar
 
 from seisflows.tools import unix
@@ -74,23 +73,7 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         self.mpirun('bin/xspecfem3D')
 
 
-    def initialize_io_machinery(self):
-        """ Writes mesh files expected by input/output methods
-        """
-        if system.getnode() == 0:
-            parts = self.load(PATH.MODEL_INIT +'/'+ 'DATABASES_MPI')
-            path = PATH.GLOBAL +'/'+ 'mesh'
-
-            if not exists(path):
-                for key in self.model_parameters:
-                    if key not in self.inversion_parameters:
-                        unix.mkdir(path +'/'+ key)
-                        for proc in range(PAR.NPROC):
-                            with open(path +'/'+ key +'/'+ '%06d' % proc, 'w') as file:
-                                np.save(file, parts[key][proc])
-
-            if 'OPTIMIZE' in PATH:
-                if not exists(PATH.OPTIMIZE +'/'+ 'm_new'):
-                    savenpy(PATH.OPTIMIZE +'/'+ 'm_new', self.merge(parts))
-
+    @property
+    def data_wildcard(self):
+        return glob('OUTPUT_FILES/*.sem*')
 

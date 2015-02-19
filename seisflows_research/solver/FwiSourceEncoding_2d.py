@@ -3,7 +3,7 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
-from seisflows.tools.config import loadclass, findpath, ParameterObj
+from seisflows.tools.config import loadclass, ParameterObj
 from seisflows.seistools.shared import SeisStruct
 
 import seisflows.seistools.specfem2d as solvertools
@@ -15,11 +15,11 @@ import system
 import preprocess
 
 
-class specfem2d_SourceEncoding(loadclass('solver', 'specfem2d')):
+class FwiSourceEncoding_2d(loadclass('solver', 'specfem2d')):
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
-        super(specfem2d_SourceEncoding, self).check()
+        super(FwiSourceEncoding_2d, self).check()
 
         if 'NT_PADDED' not in PAR:
             raise Exception
@@ -31,7 +31,7 @@ class specfem2d_SourceEncoding(loadclass('solver', 'specfem2d')):
     def initialize_solver_directories(self):
         """ Sets up directory in which to run solver
         """
-        super(specfem2d_SourceEncoding, self).initialize_solver_directories()
+        super(FwiSourceEncoding_2d, self).initialize_solver_directories()
         solvertools.setpar('NSOURCES', PAR.NSRC)
         solvertools.setpar('nt', PAR.NT_PADDED)
 
@@ -64,3 +64,4 @@ class specfem2d_SourceEncoding(loadclass('solver', 'specfem2d')):
         h = SeisStruct(PAR.NREC, PAR.NT_PADDED, PAR.DT)
         for channel in ['x', 'y', 'z']:
             preprocess.writer(zeros, h, channel=channel, prefix='traces/adj')
+
