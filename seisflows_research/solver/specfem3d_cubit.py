@@ -33,7 +33,7 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
             raise Exception ('Currently, CUBIT models must be used in combination with ASCII data ouput format.')
 
         if PAR.WORKFLOW == 'inversion':
-            raise Exception ('The machinery in SPECFEM3D for iteratively updating CUBIT models is in disrepair. As a result, it is only possible to run migration, not inversions.')
+            raise Exception ('The machinery in SPECFEM3D for iteratively updating CUBIT models is in disrepair. As a result, it is only possible to run migrations, not inversions.')
 
 
     def generate_data(self, **model_kwargs):
