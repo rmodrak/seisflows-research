@@ -108,9 +108,17 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
 
 
     def import_model(self, path):
-        src = join(path, 'model')
+        src = glob(join(path, 'model', '*'))
         dst = self.getpath +'/'+ 'OUTPUT_FILES'
         unix.cp(src, dst)
+
+
+    def export_model(self, path):
+        if system.getnode() == 0:
+            src = self.getpath +'/'+ 'OUTPUT_FILES/DATABASES_MPI'
+            dst = path
+            unix.mkdir(dst)
+            unix.cp(src, dst)
 
     @property
     def data_wildcard(self):
