@@ -85,7 +85,7 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         """ Sums individual source contributions. Wrapper over xsum_kernels 
             utility.
         """
-        unix.cd(self.getpath)
+        unix.cd(path)
 
         # create temporary files and directories
         dirs = unix.ls(path)
