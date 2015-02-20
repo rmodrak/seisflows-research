@@ -81,30 +81,30 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         raise Exception('Not implemented for CUBIT models.')
 
 
-    def smooth(self, path='', tag='gradient', span=0.):
-        """ Wrapper for legacy version of xsum_kernels
+    def combine(self, path=''):
+        """ Sums individual source contributions. Wrapper over xsum_kernels 
+            utility.
         """
         unix.cd(self.getpath)
 
-        # apply smoothing operator
-        for name in self.parameters:
-            print ' smoothing', name
-            self.mpirun(
-                PATH.SPECFEM_BIN +'/'+ 'xsmooth_sem '
-                + str(span) + ' '
-                + str(span) + ' '
-                + name + ' '
-                + path +'/'+ tag + '/ '
-                + path +'/'+ tag + '/ ')
+        # create temporary files and directories
+        dirs = unix.ls(path)
+        with open('kernels_list.txt', 'w') as file:
+            file.write('\n'.join(dirs) + '\n')
+        unix.mkdir('INPUT_KERNELS')
+        unix.mkdir('OUTPUT_SUM')
+        for dir in dirs:
+            src = path +'/'+ dir
+            dst = 'INPUT_KERNELS' +'/'+ dir
+            unix.ln(src, dst)
 
-        # remove old kernels
-        src = path +'/'+ tag
-        dst = path +'/'+ tag + '_nosmooth'
-        unix.mkdir(dst)
-        for name in self.parameters:
-            unix.mv(glob(src+'/*'+name+'.bin'), dst)
-        unix.rename('_smooth', '', glob(src+'/*'))
-        print ''
+        # sum kernels
+        self.mpirun(PATH.SPECFEM_BIN +'/'+ 'xsum_kernels')
+        unix.mv('OUTPUT_SUM', path +'/'+ 'sum')
+
+        # remove temporary files and directories
+        unix.rm('INPUT_KERNELS')
+        unix.rm('kernels_list.txt')
 
 
     def import_model(self, path):
