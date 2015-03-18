@@ -16,12 +16,12 @@ import preprocess
 import postprocess
 
 
-class FwiNewton(loadclass('workflow', 'inversion')):
+class Newton(loadclass('workflow', 'inversion')):
     """ Inversion with truncated Newton model updates
     """
 
     def check(self):
-        super(FwiNewton, self).check()
+        super(Newton, self).check()
 
         if PAR.OPTIMIZE != 'Newton':
             raise Exception
@@ -56,12 +56,10 @@ class FwiNewton(loadclass('workflow', 'inversion')):
         self.prepare_model(path=PATH.HESS, suffix='lcg')
 
         system.run('solver', 'apply_hess',
-                   hosts='all',
-                   path=PATH.HESS)
+                   hosts='all')
 
-        postprocess.process_kernels(
-            path=PATH.HESS,
-            tag='newton_lcg')
+        postprocess.write_gradient_lcg(
+            path=PATH.HESS)
 
         unix.rm(PATH.HESS+'_debug')
         unix.mv(PATH.HESS, PATH.HESS+'_debug')

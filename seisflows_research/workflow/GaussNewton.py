@@ -16,12 +16,12 @@ import preprocess
 import postprocess
 
 
-class FwiGaussNewton(loadclass('workflow', 'inversion')):
+class GaussNewton(loadclass('workflow', 'inversion')):
     """ Inversion with truncated Gauss Newton model updates
     """
 
     def check(self):
-        super(FwiGaussNewton, self).check()
+        super(GaussNewton, self).check()
 
         if PAR.OPTIMIZE != 'GaussNewton':
             raise Exception
@@ -59,9 +59,8 @@ class FwiGaussNewton(loadclass('workflow', 'inversion')):
                    hosts='all',
                    path=PATH.HESS)
 
-        postprocess.process_kernels(
-            path=PATH.HESS,
-            tag='gauss_newton_lcg')
+        postprocess.write_gradient_lcg(
+            path=PATH.HESS)
 
         unix.rm(PATH.HESS+'_debug')
         unix.mv(PATH.HESS, PATH.HESS+'_debug')
