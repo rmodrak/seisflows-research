@@ -24,7 +24,7 @@ iostruct = ModelStruct
 iowriter = MinmaxStruct
 
 
-class FwiElastic2d(loadclass('solver', 'specfem2d_beta')):
+class FwiElastic2d(loadclass('solver', 'specfem2d_binary')):
     """ Python interface for SPECFEM2D
 
       See base class for method descriptions
