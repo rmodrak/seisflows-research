@@ -24,11 +24,18 @@ if __name__ == '__main__':
         that runs on any Unix machine is being developed.
     """
 
+    examples = []
+    examples += ['Debugging']
+    examples += ['FwiElastic']
+    examples += ['FwiGaussNewton']
+    examples += ['FwiNewton']
+    examples += ['FwiSourceEncoding']
+    examples += ['Imaging3d']
+
     # prompt user for path
     home = '/home/rmodrak/data/'
-    opts = ['FwiGaussNewton', 'FwiNewton', 'FwiSourceEncoding', 'Imaging3d']
     print ''
-    path = join(home, unix.select(opts))
+    path = join(home, unix.select(examples))
     print ''
 
     # prompt user for directory

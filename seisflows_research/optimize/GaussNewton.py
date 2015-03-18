@@ -45,7 +45,6 @@ class GaussNewton(loadclass('optimize', 'base')):
         m = loadnpy('m_new')
         p = cls.LCG.initialize()
         cls.delta = 1.e-3 * max(abs(p))**-1
-        tmp = p*cls.delta
         savenpy('m_lcg', m + p*cls.delta)
 
 

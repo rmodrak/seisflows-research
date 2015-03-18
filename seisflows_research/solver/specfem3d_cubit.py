@@ -113,6 +113,14 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
         unix.cp(src, dst)
 
 
+    def export_kernels(self, path):
+        unix.mkdir_gpfs(join(path, 'kernels'))
+        unix.mkdir(join(path, 'kernels', self.getname))
+        src = join(glob(self.model_databases +'/'+ '*kernel.bin'))
+        dst = join(path, 'kernels', self.getname)
+        unix.mv(src, dst)
+
+
     def export_model(self, path):
         if system.getnode() == 0:
             src = self.getpath +'/'+ 'OUTPUT_FILES/DATABASES_MPI'
