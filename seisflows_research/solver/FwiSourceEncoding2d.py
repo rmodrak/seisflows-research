@@ -15,23 +15,20 @@ import system
 import preprocess
 
 
-class FwiSourceEncoding_2d(loadclass('solver', 'specfem2d')):
+class FwiSourceEncoding2d(loadclass('solver', 'specfem2d')):
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
-        super(FwiSourceEncoding_2d, self).check()
-
-        if 'NT_PADDED' not in PAR:
-            raise Exception
-
-        if 'DATA' not in PATH:
-            raise Exception
+        super(FwiSourceEncoding2d, self).check()
 
 
     def initialize_solver_directories(self):
         """ Sets up directory in which to run solver
         """
-        super(FwiSourceEncoding_2d, self).initialize_solver_directories()
+        if 'NT_PADDED' not in PAR:
+            raise Exception
+
+        super(FwiSourceEncoding2d, self).initialize_solver_directories()
         solvertools.setpar('NSOURCES', PAR.NSRC)
         solvertools.setpar('nt', PAR.NT_PADDED)
 
