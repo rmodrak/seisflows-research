@@ -59,10 +59,10 @@ class Newton(loadclass('optimize', 'base')):
 
         p, isdone = cls.LCG.update((g - g0)/cls.delta)
 
-        s = np.dot(g, p)
+        s = np.dot(g, p)/np.dot(g, g)
         if s >= 0:
             print ' Newton failed [not a descent direction]'
-            p, isdone = -g, True
+            p, isdone = -g0, True
 
         if isdone:
             savenpy('p_new', p)

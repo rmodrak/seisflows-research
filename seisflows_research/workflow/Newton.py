@@ -56,7 +56,8 @@ class Newton(loadclass('workflow', 'inversion')):
         self.prepare_model(path=PATH.HESS, suffix='lcg')
 
         system.run('solver', 'apply_hess',
-                   hosts='all')
+                   hosts='all',
+                   path=PATH.HESS)
 
         postprocess.write_gradient_lcg(
             path=PATH.HESS)

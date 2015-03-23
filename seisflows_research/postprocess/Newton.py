@@ -42,13 +42,10 @@ class Newton(loadclass('postprocess', 'base')):
         # write gradient
         g = solver.merge(solver.load(
                 PATH.HESS +'/'+ 'kernels/sum',
-                type='model',
                 verbose=True))
 
         g *= solver.merge(solver.load(
                 path +'/'+ 'model'))
-
-        savenpy(PATH.OPTIMIZE +'/'+ 'g_lcg', g)
 
         # write gradient
         solver.save(PATH.HESS +'/'+ 'newton_lcg', solver.split(g))
