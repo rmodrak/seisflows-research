@@ -1,24 +1,14 @@
 
-import subprocess
 from os.path import join
-from glob import glob
 
-import numpy as np
-
-import seisflows.seistools.specfem2d as solvertools
-from seisflows.seistools.shared import getpar, setpar
 from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec, ModelStruct, MinmaxStruct
 
 from seisflows.tools import unix
-from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import exists
-from seisflows.tools.config import findpath, loadclass, ParameterObj
+from seisflows.tools.config import loadclass, ParameterObj
 
 PAR = ParameterObj('SeisflowsParameters')
 PATH = ParameterObj('SeisflowsPaths')
-
-import system
-import preprocess
 
 iostruct = ModelStruct
 iowriter = MinmaxStruct
@@ -61,14 +51,6 @@ class FwiElastic(object):
         kernel_parameters += ['vp']
         kernel_parameters += ['vs']
 
-    elif PAR.MATERIALS == 'vs':
-        from seisflows.seistools.maps import forward_vs as map_forward
-        from seisflows.seistools.maps import inverse_vs as map_inverse
-        model_parameters = []
-        model_parameters += ['vs']
-        kernel_parameters = []
-        kernel_parameters += ['vs']
-
     if 'DENSITY' not in PAR:
         PAR.DENSITY = 'constant'
 
@@ -82,6 +64,7 @@ class FwiElastic(object):
         map_density = None
         model_parameters += ['rho']
         kernel_parameters += ['rho']
+
 
 
     def load(self, path, prefix='', suffix='', verbose=True):
@@ -112,9 +95,7 @@ class FwiElastic(object):
             minmax = iowriter(self.model_parameters)
 
             # load model
-            model = iostruct(self.parameters)
-            if 'rho' not in model:
-                model['rho'] = []
+            model = iostruct(self.kernel_parameters)
 
             for iproc in range(PAR.NPROC):
                 # read database files
