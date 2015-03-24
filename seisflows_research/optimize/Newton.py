@@ -50,7 +50,7 @@ class Newton(loadclass('optimize', 'base')):
 
 
     def iterate_newton(cls):
-        """ Iterate truncated Newton algorithm
+        """ Carry out truncated Newton iteration
         """
         unix.cd(cls.path)
 
