@@ -25,7 +25,6 @@ if __name__ == '__main__':
     """
 
     examples = []
-    examples += ['Debugging']
     examples += ['FwiElastic']
     examples += ['FwiGaussNewton']
     examples += ['FwiNewton']
