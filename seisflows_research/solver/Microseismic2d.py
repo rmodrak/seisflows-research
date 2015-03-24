@@ -23,9 +23,6 @@ class specfem2d_Microseismic(loadclass('solver', 'specfem2d')):
     parameters += ['vs']
 
 
-    glob = lambda _: glob('OUTPUT_FILES/*.semd')
-
-
     def generate_data(self, **model_kwargs):
         """ Prepares data for inversion or migration
         """
@@ -160,6 +157,7 @@ class specfem2d_Microseismic(loadclass('solver', 'specfem2d')):
         s = preprocess.apply(preprocess.compute_adjoint, [s, d], [h, 2])
         preprocess.save(s, h)
 
+
     def process_traces(self, f, h, branch=''):
         """ Extracts positive or negative branch
         """
@@ -196,5 +194,8 @@ class specfem2d_Microseismic(loadclass('solver', 'specfem2d')):
 
         with open('DATA/NOISE_TOMOGRAPHY/irec_master', 'w') as myfile:
             myfile.write(str(system.getnode() + 1) + '\n')
+
+    def data_wildcard(self):
+        return glob('OUTPUT_FILES/*.semd')
 
 
