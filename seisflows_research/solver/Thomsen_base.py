@@ -4,32 +4,34 @@ PAR = ParameterObj('SeisflowsParameters')
 PATH = ParameterObj('SeisflowsPaths')
 
 
-class Thomsen_base(loadclass('extensions.solver', 'specfem3d_legacy')):
-    # model parameters expected by solver
-    model_parameters = []
-    model_parameters += ['rho']
-    model_parameters += ['vp']
-    model_parameters += ['vs']
-    model_parameters += ['epsilon']
-    model_parameters += ['delta']
-    model_parameters += ['gamma']
-    model_parameters += ['theta']
-    model_parameters += ['azimuth']
+class Thomsen_base(loadclass('solver', 'specfem3d_legacy')):
+    # parameters expected by solver
+    solver_parameters = []
+    solver_parameters += ['rho']
+    solver_parameters += ['vp']
+    solver_parameters += ['vs']
+    solver_parameters += ['epsilon']
+    solver_parameters += ['delta']
+    solver_parameters += ['gamma']
+    solver_parameters += ['theta']
+    solver_parameters += ['azimuth']
 
-    # model parameters included in inversion
-    inversion_parameters = []
-    inversion_parameters += ['vp']
-    inversion_parameters += ['vs']
-    inversion_parameters += ['epsilon']
-    inversion_parameters += ['delta']
-    inversion_parameters += ['gamma']
+    def save(self, path, model, prefix='', suffix=''):
+        unix.mkdir(path)
 
-    kernel_map = {
-        'rho': 'rho_kernel',
-        'vp': 'alpha_kernel',
-        'vs': 'beta_kernel',
-        'epsilon': 'epsilon_kernel',
-        'delta': 'delta_kernel',
-        'gamma': 'gamma_kernel',
-        'theta': 'theta_kernel',
-        'azimuth': 'azimuth_kernel'}
+        for iproc in range(PAR.NPROC):
+            for key in solver.parameters:
+                if key in self.parameters:
+                    savebin(model[key][iproc], path, iproc, prefix+key+suffix)
+                else:
+                    src = PATH.OUTPUT +'/'+ 'model_init'
+                    dst = path
+                    copybin(src, dst, iproc, prefix+key+suffix)
+
+            if 'rho' in self.parameters:
+                savebin(model['rho'][iproc], path, iproc, prefix+'rho'+suffix)
+            else:
+                src = PATH.OUTPUT +'/'+ 'model_init'
+                dst = path
+                copybin(src, dst, iproc, 'rho')
+
