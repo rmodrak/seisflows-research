@@ -1,4 +1,7 @@
 
+from glob import glob
+from os.path import join
+
 from seisflows.tools import unix
 
 from seisflows.seistools.io import copybin, savebin
@@ -6,6 +9,8 @@ from seisflows.tools.config import loadclass, ParameterObj
 
 PAR = ParameterObj('SeisflowsParameters')
 PATH = ParameterObj('SeisflowsPaths')
+
+import system
 
 
 class ChenTromp_base(loadclass('solver', 'ChenTromp_base')):
@@ -65,4 +70,13 @@ class ChenTromp_base(loadclass('solver', 'ChenTromp_base')):
             unix.mv(src, dst)
         except:
             pass
+
+
+    def export_model(self, path):
+        if system.getnode() == 0:
+            for parameter in self.solver_parameters:
+                unix.mkdir(path)
+                src = glob(join(self.model_databases, '*'+parameter+'.bin'))
+                dst = path
+                unix.cp(src, dst)
 
