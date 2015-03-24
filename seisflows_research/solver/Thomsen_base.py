@@ -1,3 +1,7 @@
+
+from seisflows.tools import unix
+
+from seisflows.seistools.io import copybin, savebin
 from seisflows.tools.config import loadclass, ParameterObj
 
 PAR = ParameterObj('SeisflowsParameters')
@@ -15,6 +19,7 @@ class Thomsen_base(loadclass('solver', 'specfem3d_legacy')):
     solver_parameters += ['gamma']
     solver_parameters += ['theta']
     solver_parameters += ['azimuth']
+
 
     def save(self, path, model, prefix='', suffix=''):
         unix.mkdir(path)
