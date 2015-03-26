@@ -17,7 +17,6 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
 
     # model parameters expected by solver
     solver_parameters = []
-    solver_parameters += ['rho']
     solver_parameters += ['A']
     solver_parameters += ['C']
     solver_parameters += ['N']
@@ -48,7 +47,7 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
             for key in self.solver_parameters:
                 if key in self.parameters:
                     savebin(model[key][iproc], path, iproc, prefix+key+suffix)
-                else:
+                elif 'kernel' not in suffix:
                     src = PATH.OUTPUT +'/'+ 'model_init'
                     dst = path
                     copybin(src, dst, iproc, prefix+key+suffix)
