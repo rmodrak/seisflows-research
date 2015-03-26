@@ -62,7 +62,7 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
 
 
     def export_kernels(self, path):
-        super(specfem3d_ChenTromp, self).export_kernels(path)
+        super(ChenTromp_base, self).export_kernels(path)
         try:
             name = 'azimuth'
             src = join(glob(self.databases +'/'+ '*'+ name+'.bin'))
