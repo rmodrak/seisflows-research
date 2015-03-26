@@ -55,3 +55,23 @@ class Thomsen_base(loadclass('solver', 'specfem3d_legacy')):
                 dst = path
                 unix.cp(src, dst)
 
+
+    def export_kernels(self, path):
+        raise NotImplementedError
+        try:
+            files = glob(self.model_databases +'/'+ '*alpha*_kernel.bin')
+            unix.rename('alpha', 'vp', files)
+
+            files = glob(self.model_databases +'/'+ '*beta*_kernel.bin')
+            unix.rename('beta', 'vs', files)
+        except:
+            pass
+
+        # export kernels
+        unix.mkdir_gpfs(join(path, 'kernels'))
+        unix.mkdir(join(path, 'kernels', self.getname))
+        src = join(glob(self.model_databases +'/'+ '*kernel.bin'))
+        dst = join(path, 'kernels', self.getname)
+        unix.mv(src, dst)
+
+
