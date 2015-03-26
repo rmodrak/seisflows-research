@@ -1,7 +1,8 @@
 
 from os.path import join
 
-from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec, ModelStruct, MinmaxStruct
+from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec, Minmax
+from seisflows.seistools.io import Model as IOStruct
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
@@ -10,8 +11,6 @@ from seisflows.tools.config import loadclass, ParameterObj
 PAR = ParameterObj('SeisflowsParameters')
 PATH = ParameterObj('SeisflowsPaths')
 
-iostruct = ModelStruct
-iowriter = MinmaxStruct
 
 
 class FwiElastic(object):
@@ -73,10 +72,10 @@ class FwiElastic(object):
         logpath = PATH.SUBMIT
 
         if 'kernel' in suffix:
-            minmax = iowriter(self.kernel_parameters)
+            minmax = Minmax(self.kernel_parameters)
 
             # load kernels
-            kernels = iostruct(self.kernel_parameters)
+            kernels = IOStruct(self.kernel_parameters)
 
             for iproc in range(PAR.NPROC):
                 # read database files
@@ -92,10 +91,10 @@ class FwiElastic(object):
             return kernels
 
         else:
-            minmax = iowriter(self.model_parameters)
+            minmax = Minmax(self.model_parameters)
 
             # load model
-            model = iostruct(self.kernel_parameters)
+            model = IOStruct(self.kernel_parameters)
 
             for iproc in range(PAR.NPROC):
                 # read database files
