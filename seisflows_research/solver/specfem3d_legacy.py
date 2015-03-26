@@ -31,7 +31,7 @@ class specfem3d_legacy(loadclass('solver', 'specfem3d')):
     def combine(self, path=''):
         """ combines SPECFEM3D kernels
         """
-        unix.cd(self.spath)
+        unix.cd(self.getpath)
 
         # create temporary files and directories needed by xsum_kernels
         dirs = unix.ls(path)
@@ -45,53 +45,12 @@ class specfem3d_legacy(loadclass('solver', 'specfem3d')):
             unix.ln(src, dst)
 
         # sum kernels
-        self.mpirun(PATH.SOLVER_BINARIES + '/' + 'xsum_kernels')
+        self.mpirun(PATH.SPECFEM_BIN + '/' + 'xsum_kernels')
         unix.mv('OUTPUT_SUM', path + '/' + 'sum')
 
         # remove temporary files and directories
         unix.rm('INPUT_KERNELS')
         unix.rm('../kernels_list.txt')
-
-        unix.cd(path)
-
-    def smooth(self, path='', tag='grad', span=0.):
-        """ smooths SPECFEM3D kernels
-        """
-        unix.cd(self.spath)
-
-        # list kernels
-        kernels = []
-        for name in self.model_parameters:
-            if name in self.inversion_parameters:
-                flag = True
-            else:
-                flag = False
-            kernels = kernels + [[name, flag]]
-
-        # smooth kernels
-        for name, flag in kernels:
-            if flag:
-                print ' smoothing', name
-                self.mpirun(
-                    PATH.SOLVER_BINARIES + '/' + 'xsmooth_vol_data ',
-                    name + ' '
-                    + path + '/' + tag + '_nosmooth/' + ' '
-                    + path + '/' + tag + '/' + ' '
-                    + str(span) + ' '
-                    + str(span) + ' ' + '1')
-
-        # move kernels
-        src = path +'/'+ tag
-        dst = path +'/'+ tag + '_nosmooth'
-        unix.mkdir(dst)
-        for name, flag in kernels:
-            if flag:
-                unix.mv(glob(src+'/*'+name+'.bin'), dst)
-            else:
-                unix.cp(glob(src+'/*'+name+'.bin'), dst)
-        unix.rename('_smooth', '', glob(src+'/*'))
-        print ''
-
 
         unix.cd(path)
 
