@@ -13,7 +13,7 @@ PATH = ParameterObj('SeisflowsPaths')
 import system
 
 
-class ChenTromp_base(loadclass('solver', 'ChenTromp_base')):
+class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
 
     # model parameters expected by solver
     solver_parameters = []
@@ -45,7 +45,7 @@ class ChenTromp_base(loadclass('solver', 'ChenTromp_base')):
         unix.mkdir(path)
 
         for iproc in range(PAR.NPROC):
-            for key in solver.parameters:
+            for key in self.solver_parameters:
                 if key in self.parameters:
                     savebin(model[key][iproc], path, iproc, prefix+key+suffix)
                 else:
