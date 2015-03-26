@@ -73,7 +73,10 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
 
     def export_model(self, path):
         if system.getnode() == 0:
-            for parameter in self.solver_parameters:
+            parameters = self.solver_parameters
+            parameters += ['rho']
+
+            for parameter in self.parameters:
                 unix.mkdir(path)
                 src = glob(join(self.model_databases, '*'+parameter+'.bin'))
                 dst = path
