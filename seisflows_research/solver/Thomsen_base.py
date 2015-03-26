@@ -14,6 +14,9 @@ import system
 
 
 class Thomsen_base(loadclass('solver', 'specfem3d_legacy')):
+
+    raise NotImplementedError("The following methods need to be fixed: export_kernels")
+
     # parameters expected by solver
     solver_parameters = []
     solver_parameters += ['vp']
