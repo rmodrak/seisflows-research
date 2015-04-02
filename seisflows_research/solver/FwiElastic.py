@@ -21,8 +21,8 @@ class FwiElastic(object):
         ParametersError(PAR, 'MATERIALS')
 
     if PAR.MATERIALS == 'bulk_c_bulk_mu':
-        from seisflows.seistools.maps import forward_bulk_c_bulk_mu as map_forward
-        from seisflows.seistools.maps import inverse_bulk_c_bulk_mu as map_inverse
+        from seisflows.seistools.maps import bulk_c_bulk_mu_forward as map_forward
+        from seisflows.seistools.maps import bulk_c_bulk_mu_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -31,8 +31,8 @@ class FwiElastic(object):
         kernel_parameters += ['bulk_mu']
 
     elif PAR.MATERIALS == 'kappa_mu':
-        from seisflows.seistools.maps import forward_kappa_mu as map_forward
-        from seisflows.seistools.maps import inverse_kappa_mu as map_inverse
+        from seisflows.seistools.maps import kappa_mu_forward as map_forward
+        from seisflows.seistools.maps import kappa_mu_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -41,8 +41,8 @@ class FwiElastic(object):
         kernel_parameters += ['mu']
 
     elif PAR.MATERIALS == 'vp_vs':
-        from seisflows.seistools.maps import forward_vp_vs as map_forward
-        from seisflows.seistools.maps import inverse_vp_vs as map_inverse
+        from seisflows.seistools.maps import vp_vs_forward as map_forward
+        from seisflows.seistools.maps import vp_vs_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -54,7 +54,7 @@ class FwiElastic(object):
         PAR.DENSITY = 'constant'
 
     if PAR.DENSITY == 'birch':
-        import seisflows.seistools.maps.birch as map_density
+        import seisflows.seistools.maps.rho_birch as map_density
 
     elif PAR.DENSITY == 'constant':
         map_density = None
