@@ -41,44 +41,4 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
 
 
     def save(self, path, model, prefix='', suffix=''):
-        unix.mkdir(path)
-
-        for iproc in range(PAR.NPROC):
-            for key in self.solver_parameters:
-                if key in self.parameters:
-                    savebin(model[key][iproc], path, iproc, prefix+key+suffix)
-                elif 'kernel' not in suffix:
-                    src = PATH.OUTPUT +'/'+ 'model_init'
-                    dst = path
-                    copybin(src, dst, iproc, prefix+key+suffix)
-
-            if 'rho' in self.parameters:
-                savebin(model['rho'][iproc], path, iproc, prefix+'rho'+suffix)
-            else:
-                src = PATH.OUTPUT +'/'+ 'model_init'
-                dst = path
-                copybin(src, dst, iproc, 'rho')
-
-
-    def export_kernels(self, path):
-        super(ChenTromp_base, self).export_kernels(path)
-        try:
-            name = 'azimuth'
-            src = join(glob(self.databases +'/'+ '*'+ name+'.bin'))
-            dst = join(path, 'azimuth')
-            unix.mv(src, dst)
-        except:
-            pass
-
-
-    def export_model(self, path):
-        if system.getnode() == 0:
-            parameters = self.solver_parameters
-            parameters += ['rho']
-
-            for parameter in parameters:
-                unix.mkdir(path)
-                src = glob(join(self.model_databases, '*'+parameter+'.bin'))
-                dst = path
-                unix.cp(src, dst)
-
+        super(ChenTromp_base, self).save(path, model, prefix, suffix, solver_parameters)
