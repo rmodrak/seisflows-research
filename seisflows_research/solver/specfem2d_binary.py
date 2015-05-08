@@ -29,7 +29,7 @@ class specfem2d_binary(loadclass('solver', 'base')):
 
     parameters = []
     parameters += ['vs']
-    parameters += ['vp']
+    #parameters += ['vp']
 
     density_scaling = None
 
@@ -109,7 +109,7 @@ class specfem2d_binary(loadclass('solver', 'base')):
     def smooth(self, path='', span=0.):
         """ Smooths SPECFEM2D kernels by convolving them with a Gaussian
         """
-        from seisflows.tools.array import meshsmooth
+        from seisflows.tools.array import meshsmooth, stack
 
         kernels = self.load(path, suffix='_kernel')
         if not span:
@@ -118,35 +118,13 @@ class specfem2d_binary(loadclass('solver', 'base')):
         # set up grid
         _,x = loadbypar(PATH.MODEL_INIT, ['x'], 0)
         _,z = loadbypar(PATH.MODEL_INIT, ['z'], 0)
-        x = np.array(x[0])
-        z = np.array(z[0])
-        lx = x.max() - x.min()
-        lz = z.max() - z.min()
-        nn = x.size
-        nx = np.around(np.sqrt(nn*lx/lz))
-        nz = np.around(np.sqrt(nn*lx/lz))
+        mesh = stack(x[0], z[0])
 
-        # perform smoothing
         for key in self.parameters:
-            kernels[key] = [meshsmooth(x, z, kernels[key][0], span, nx, nz)]
+            kernels[key] = [meshsmooth(kernels[key][0], mesh, span)]
+
         unix.mv(path, path + '_nosmooth')
         self.save(path, kernels, suffix='_kernel')
-
-
-    def clip(self, path='', thresh=1.):
-        """ Clips SPECFEM2D kernels
-        """
-        kernels = self.load(path)
-        if thresh >= 1.:
-            return kernels
-
-        for key in self.parameters:
-            # scale to [-1,1]
-            minval = kernels[key][0].min()
-            maxval = kernels[key][0].max()
-            np.clip(kernels[key][0], thresh*minval, thresh*maxval, out=kernels[key][0])
-        unix.mv(path, path + '_noclip')
-        self.save(path, kernels)
 
 
     ### file transfer utilities
