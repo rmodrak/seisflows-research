@@ -49,3 +49,13 @@ class ChenTromp(loadclass('postprocess', 'base')):
         savenpy(PATH.OPTIMIZE +'/'+ 'g_new', g)
 
 
+        try:
+            for iproc in range(PAR.NPROC):
+                y = g['Gs'][iproc]
+                x = - g['Gc'][iproc]
+                t = 0.5*np.arctan2(y, x)
+                filename = 'proc%06d_%s.bin' % (iproc, 'azimuth')
+                savebin(t, PATH.GRAD +'/'+ filename)
+        except:
+            pass
+

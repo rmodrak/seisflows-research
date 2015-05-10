@@ -2,8 +2,10 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import Struct
+from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+    ParameterError, loadclass
+
 from seisflows.seistools import adjoint, misfit, sbandpass, smute
-from seisflows.tools.config import ParameterObj, loadclass
 
 PAR = ParameterObj('SeisflowsParameters')
 PATH = ParameterObj('SeisflowsPaths')
