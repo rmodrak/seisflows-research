@@ -1,7 +1,5 @@
-from seisflows.tools.config import loadclass, ParameterObj
 
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
+from seisflows.tools.config import loadclass
 
 
 class ChenTromp_tti(loadclass('solver', 'ChenTromp_base')):

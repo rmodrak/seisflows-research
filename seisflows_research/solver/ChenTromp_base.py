@@ -5,10 +5,11 @@ from os.path import join
 from seisflows.tools import unix
 
 from seisflows.seistools.io import copybin, savebin
-from seisflows.tools.config import loadclass, ParameterObj
+from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+    ParameterError, loadclass
 
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
+PAR = SeisflowsParameters()
+PATH = SeisflowsPaths()
 
 import system
 
@@ -41,4 +42,10 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
 
 
     def save(self, path, model, prefix='', suffix=''):
-        super(ChenTromp_base, self).save(path, model, prefix, suffix, solver_parameters)
+        super(ChenTromp_base, self).save(
+            path, model, prefix, suffix, self.solver_parameters)
+
+    def export_model(self, path):
+        super(ChenTromp_base, self).save(
+            path, model, prefix, suffix, self.solver_parameters+['rho'])
+

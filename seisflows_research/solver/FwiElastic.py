@@ -6,20 +6,16 @@ from seisflows.seistools.io import Model as IOStruct
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
-from seisflows.tools.config import loadclass, ParameterObj
+from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+    ParameterError, loadclass
 
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
-
+PAR = SeisflowsParameters()
+PATH = SeisflowsPaths()
 
 
 class FwiElastic(object):
     """ Adds elastic inversion machinery
     """
-
-    if 'MATERIALS' not in PAR:
-        ParametersError(PAR, 'MATERIALS')
-
     if PAR.MATERIALS == 'bulk_c_bulk_mu':
         from seisflows.seistools.maps import bulk_c_bulk_mu_forward as map_forward
         from seisflows.seistools.maps import bulk_c_bulk_mu_inverse as map_inverse
@@ -49,21 +45,6 @@ class FwiElastic(object):
         kernel_parameters = []
         kernel_parameters += ['vp']
         kernel_parameters += ['vs']
-
-    if 'DENSITY' not in PAR:
-        PAR.DENSITY = 'constant'
-
-    if PAR.DENSITY == 'birch':
-        import seisflows.seistools.maps.rho_birch as map_density
-
-    elif PAR.DENSITY == 'constant':
-        map_density = None
-
-    elif PAR.DENSITY == 'variable':
-        map_density = None
-        model_parameters += ['rho']
-        kernel_parameters += ['rho']
-
 
 
     def load(self, path, prefix='', suffix='', verbose=True):

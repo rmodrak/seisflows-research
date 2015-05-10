@@ -3,13 +3,14 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
-from seisflows.tools.config import loadclass, ParameterObj
-from seisflows.seistools.shared import SeisStruct
+from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+    ParameterError, loadclass
 
+from seisflows.seistools.shared import SeisStruct
 import seisflows.seistools.specfem2d as solvertools
 
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
+PAR = SeisflowsParameters()
+PATH = SeisflowsPaths()
 
 import system
 import preprocess

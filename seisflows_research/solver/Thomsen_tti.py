@@ -1,7 +1,5 @@
-from seisflows.tools.config import loadclass, ParameterObj
 
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
+from seisflows.tools.config import loadclass
 
 
 class Thomsen_tti(loadclass('solver', 'Thomsen_base')):

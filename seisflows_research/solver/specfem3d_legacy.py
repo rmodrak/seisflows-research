@@ -2,11 +2,11 @@ import subprocess
 import glob
 
 from seisflows.tools import unix
-from seisflows.tools.config import loadclass, ConfigObj, ParameterObj
+from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+    ParameterError, loadclass
 
-OBJ = ConfigObj('SeisflowsObjects')
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
+PAR = SeisflowsParameters()
+PATH = SeisflowsPaths()
 
 import system
 import preprocess
