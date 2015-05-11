@@ -6,8 +6,8 @@ from seisflows.tools.code import loadtxt, savetxt
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, loadclass
 
-PAR = ParameterObj('SeisflowsParameters')
-PATH = ParameterObj('SeisflowsPaths')
+PAR = SeisflowsParameters()
+PATH = SeisflowsPaths()
 
 
 class Newton(loadclass('preprocess', 'base')):
