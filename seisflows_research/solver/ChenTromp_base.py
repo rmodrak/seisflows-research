@@ -46,6 +46,6 @@ class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
             path, model, prefix, suffix, self.solver_parameters)
 
     def export_model(self, path):
-        super(ChenTromp_base, self).save(
-            path, model, prefix, suffix, self.solver_parameters+['rho'])
+        super(ChenTromp_base, self).export_model(
+            path, self.solver_parameters+['rho'])
 

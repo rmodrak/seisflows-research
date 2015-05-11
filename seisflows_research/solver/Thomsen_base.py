@@ -35,7 +35,7 @@ class Thomsen_base(loadclass('solver', 'specfem3d_legacy')):
 
 
     def export_model(self, path):
-        super(Thomsen_base, self).save(
-            path, model, prefix, suffix, self.solver_parameters+['rho'])
+        super(Thomsen_base, self).export_model(
+            path, model, self.solver_parameters+['rho'])
 
 
