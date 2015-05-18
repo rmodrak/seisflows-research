@@ -16,15 +16,15 @@ PATH = SeisflowsPaths()
 class FwiElastic(object):
     """ Adds elastic inversion machinery
     """
-    if PAR.MATERIALS == 'bulk_c_bulk_mu':
-        from seisflows.seistools.maps import bulk_c_bulk_mu_forward as map_forward
-        from seisflows.seistools.maps import bulk_c_bulk_mu_inverse as map_inverse
+    if PAR.MATERIALS == 'phi_beta':
+        from seisflows.seistools.maps import phi_beta_forward as map_forward
+        from seisflows.seistools.maps import phi_beta_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
         kernel_parameters = []
         kernel_parameters += ['bulk_c']
-        kernel_parameters += ['bulk_mu']
+        kernel_parameters += ['bulk_beta']
 
     elif PAR.MATERIALS == 'kappa_mu':
         from seisflows.seistools.maps import kappa_mu_forward as map_forward
@@ -36,7 +36,17 @@ class FwiElastic(object):
         kernel_parameters += ['kappa']
         kernel_parameters += ['mu']
 
-    elif PAR.MATERIALS == 'vp_vs':
+    elif PAR.MATERIALS == 'lambda_mu':
+        from seisflows.seistools.maps import lambda_mu_forward as map_forward
+        from seisflows.seistools.maps import lambda_mu_inverse as map_inverse
+        model_parameters = []
+        model_parameters += ['vp']
+        model_parameters += ['vs']
+        kernel_parameters = []
+        kernel_parameters += ['lame1']
+        kernel_parameters += ['lame2']
+
+    elif PAR.MATERIALS == 'alpha_beta':
         from seisflows.seistools.maps import vp_vs_forward as map_forward
         from seisflows.seistools.maps import vp_vs_inverse as map_inverse
         model_parameters = []
