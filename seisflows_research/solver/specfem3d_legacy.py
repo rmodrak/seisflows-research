@@ -1,5 +1,7 @@
+
+from glob import glob
+from os.path import join
 import subprocess
-import glob
 
 from seisflows.tools import unix
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
@@ -53,4 +55,31 @@ class specfem3d_legacy(loadclass('solver', 'specfem3d')):
         unix.rm('../kernels_list.txt')
 
         unix.cd(path)
+
+
+    ### workaround legacy code issues
+
+    def export_kernels(self, path):
+        # export kernels
+        unix.mkdir_gpfs(join(path, 'kernels'))
+        unix.mkdir(join(path, 'kernels', self.getname))
+        src = join(glob(self.model_databases +'/'+ '*kernel.bin'))
+        dst = join(path, 'kernels', self.getname)
+        unix.mv(src, dst)
+
+
+    def combine(self, path=''):
+        """ Sums individual source contributions. Wrapper over xcombine_sem
+            utility.
+        """
+        super(specfem3d_legacy, self).combine(path)
+
+        try:
+            files = glob(self.model_databases +'/'+ '*alpha*_kernel.bin')
+            unix.rename('alpha', 'vp', files)
+
+            files = glob(self.model_databases +'/'+ '*beta*_kernel.bin')
+            unix.rename('beta', 'vs', files)
+        except:
+            pass
 
