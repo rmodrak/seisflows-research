@@ -16,7 +16,7 @@ import system
 import preprocess
 
 
-class FwiSourceEncoding2d(loadclass('solver', 'specfem2d')):
+class FwiSourceEncoding2d(loadclass('solver', 'specfem2d_legacy')):
     def check(self):
         """ Checks parameters, paths, and dependencies
         """

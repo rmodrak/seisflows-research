@@ -14,5 +14,5 @@ PATH = SeisflowsPaths()
 
 
 
-class FwiAnisotropic3d(loadclass('solver', 'FwiElastic'), loadclass('solver', 'specfem3d')):
-    raise NotImplementedError
+class anisotropic2d(loadclass('solver', 'anisotropic'), loadclass('solver', 'specfem2d')):
+    pass

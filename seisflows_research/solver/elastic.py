@@ -13,7 +13,7 @@ PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
 
-class FwiElastic(object):
+class elastic(object):
     """ Adds elastic inversion machinery
     """
     if PAR.MATERIALS == 'phi_beta':
@@ -146,9 +146,9 @@ class FwiElastic(object):
 
                 # write database files
                 rho = mapped.pop('rho')
-                if PAR.DENSITY == 'variable':
+                if PAR.DENSITY == 'Variable':
                     savebin(rho, path, iproc, prefix+'rho'+suffix)
-                elif PAR.DENSITY == 'constant':
+                elif PAR.DENSITY == 'Constant':
                     savebin(rho, path, iproc, prefix+'rho'+suffix)
                 else:
                     rho = self.map_density(keys, vals)

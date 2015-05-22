@@ -65,6 +65,14 @@ class GaussNewton(loadclass('optimize', 'base')):
             print ' Gauss Newton failed [not a descent direction]'
             p, isdone = -g, True
 
+        # Eisenstat-Walker condition
+        LHS = np.linalg.norm(g+dg/cls.delta)
+        RHS = np.linalg.norm(g)
+        print ' LHS:  ', LHS
+        print ' RHS:  ', RHS
+        print ' RATIO:', LHS/RHS
+        print ''
+
         if isdone:
             savenpy('p_new', p)
             savetxt('s_new', cls.delta*np.dot(g, p))

@@ -18,7 +18,7 @@ import system
 import preprocess
 
 
-class specfem2d_Microseismic(loadclass('solver', 'specfem2d')):
+class FwiSourceEncoding2d(loadclass('solver', 'specfem2d')):
 
     parameters = []
     parameters += ['vs']

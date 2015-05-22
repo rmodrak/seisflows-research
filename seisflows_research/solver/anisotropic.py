@@ -14,7 +14,7 @@ PATH = SeisflowsPaths()
 
 
 
-class FwiAnisotropic2d(loadclass('solver', 'FwiElastic'), loadclass('solver', 'specfem2d_binary')):
+class anisotropic(loadclass('solver', 'elastic')):
     """ Adds elastic inversion machinery
     """
     model_parameters = []
@@ -29,7 +29,7 @@ class FwiAnisotropic2d(loadclass('solver', 'FwiElastic'), loadclass('solver', 's
     #model_parameters += ['c25']
 
 
-    if PAR.MATERIALS == 'ChenTromp':
+    if PAR.MATERIALS == 'ChenTromp2d':
         from seisflows.seistools.maps import voigt_chentromp_2d as map_forward
         from seisflows.seistools.maps import chentromp_voigt_2d as map_inverse
         kernel_parameters = []
@@ -64,7 +64,7 @@ class FwiAnisotropic2d(loadclass('solver', 'FwiElastic'), loadclass('solver', 's
         kernel_parameters += ['theta']
 
     else:
-        raise ParameterError(PAR, 'Thomsen2d')
+        raise ParameterError(PAR, 'MATERIALS')
 
 
 

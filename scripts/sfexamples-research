@@ -25,11 +25,12 @@ if __name__ == '__main__':
     """
 
     examples = []
+    examples += ['FwiAnisotropic']
     examples += ['FwiElastic']
-    examples += ['FwiGaussNewton']
-    examples += ['FwiNewton']
     examples += ['FwiSourceEncoding']
     examples += ['Imaging3d']
+    examples += ['TestGaussNewton']
+    examples += ['TestNewton']
 
     # prompt user for path
     home = '/home/rmodrak/data/'
@@ -55,6 +56,7 @@ if __name__ == '__main__':
 
     # set up working directory
     fullpath = path+'/'+dir+'/'+subdir
+    print fullpath
     unix.cp(fullpath+'/'+'parameters.py', '.')
     unix.cp(fullpath+'/'+'paths.py', '.')
 

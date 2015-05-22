@@ -66,6 +66,14 @@ class Newton(loadclass('optimize', 'base')):
             print ' Newton failed [not a descent direction]'
             p, isdone = -g0, True
 
+        # Eisenstat-Walker condition
+        LHS = np.linalg.norm(g0+(g-g0)/cls.delta)
+        RHS = np.linalg.norm(g0)
+        print ' LHS:  ', LHS
+        print ' RHS:  ', RHS
+        print ' RATIO:', LHS/RHS
+        print ''
+
         if isdone:
             savenpy('p_new', p)
             savetxt('s_new', cls.delta*np.dot(g0, p))
