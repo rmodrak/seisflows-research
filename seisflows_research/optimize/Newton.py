@@ -78,14 +78,14 @@ class Newton(loadclass('optimize', 'base')):
         isdone = cls.LCG.update(u)
         v = loadnpy('LCG/p')
         w = loadnpy('LCG/x')
-        s = np.dot(g,w)/np.dot(g,g)
 
         if not isdone:
             savenpy('m_lcg', m + h*v)
             return isdone
 
+        s = np.dot(g,w)/np.dot(g,g)
         if s >= 0:
-            print ' Stopping Newton algorithm [not a descent direction]'
+            print ' Newton direction rejected [not a descent direction]'
             w = -g
             s = 1.
 
