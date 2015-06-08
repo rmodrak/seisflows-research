@@ -139,14 +139,6 @@ class FwiSourceEncoding(loadclass('workflow', 'inversion')):
         return r
 
 
-    def solver_status(self):
-        """ Because source encoding factors change each iteration, the adjoint
-            simulation is never "ready to go" at the start of a new iteration
-        """
-        isready = False
-        return isready
-
-
     ### data processing utilities
 
     def combine(self, h, sinfo, rinfo, tag='obs', inplace=0):
