@@ -33,7 +33,7 @@ def map(model, kernels):
 
 
 
-class lambda_mu_2d(loadclass('solver', 'FwiElastic2d')):
+class lambda_mu_2d(loadclass('solver', 'elastic2d')):
     """ Adds Lame parameter machinery to SPECFEM2D
     """
     assert PAR.MATERIALS == 'lambda_mu'

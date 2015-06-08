@@ -151,7 +151,7 @@ class elastic(object):
                 elif PAR.DENSITY == 'Constant':
                     savebin(rho, path, iproc, prefix+'rho'+suffix)
                 else:
-                    rho = self.map_density(keys, vals)
+                    rho = self.density_scaling(keys, vals)
                     savebin(rho, path, iproc, prefix+'rho'+suffix)
 
                 for key, val in mapped.items():
