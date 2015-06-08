@@ -12,8 +12,17 @@ PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
 
+### utility functions
+
+_eps = 1.e-3
+
+def _norm(v):
+    return max(abs(v))
+
+
+
 class Newton(loadclass('optimize', 'base')):
-    """ Implements truncated Newton algorithm
+    """ Adds Newton-CG algorithm to nonlinear optimization base class
     """
 
     def check(cls):
@@ -45,10 +54,14 @@ class Newton(loadclass('optimize', 'base')):
         unix.cd(cls.path)
 
         m = loadnpy('m_new')
-        p = cls.LCG.initialize()
-        cls.delta = 1.e-3 * max(abs(p))**-1
-        tmp = p*cls.delta
-        savenpy('m_lcg', m + p*cls.delta)
+        g = loadnpy('g_new')
+
+        h = _eps / _norm(g)
+
+        cls.LCG.initialize()
+        v = loadnpy('LCG/p')
+
+        savenpy('m_lcg', m + h*v)
 
 
     def iterate_newton(cls):
@@ -56,31 +69,34 @@ class Newton(loadclass('optimize', 'base')):
         """
         unix.cd(cls.path)
 
-        g0 = loadnpy('g_new')
-        g = loadnpy('g_lcg')
+        m = loadnpy('m_new')
+        g = loadnpy('g_new')
 
-        p, isdone = cls.LCG.update((g - g0)/cls.delta)
+        h = _eps / _norm(g)
+        u = cls.hessian_product(g, h)
 
-        s = np.dot(g, p)/np.dot(g, g)
+        isdone = cls.LCG.update(u)
+        v = loadnpy('LCG/p')
+        w = loadnpy('LCG/x')
+        s = np.dot(g,w)/np.dot(g,g)
+
+        if not isdone:
+            savenpy('m_lcg', m + h*v)
+            return isdone
+
         if s >= 0:
-            print ' Newton failed [not a descent direction]'
-            p, isdone = -g0, True
+            print ' Stopping Newton algorithm [not a descent direction]'
+            w = -g
+            s = 1.
 
-        # Eisenstat-Walker condition
-        LHS = np.linalg.norm(g0+(g-g0)/cls.delta)
-        RHS = np.linalg.norm(g0)
-        print ' LHS:  ', LHS
-        print ' RHS:  ', RHS
-        print ' RATIO:', LHS/RHS
-        print ''
-
-        if isdone:
-            savenpy('p_new', p)
-            savetxt('s_new', cls.delta*np.dot(g0, p))
-        else:
-            m = loadnpy('m_new')
-            cls.delta = 1.e-3 * max(abs(p))**-1
-            savenpy('m_lcg', m + p*cls.delta)
+        savenpy('p_new', w)
+        savetxt('s_new', s)
 
         return isdone
+
+
+    def hessian_product(cls, g, h):
+        dg = loadnpy('g_lcg') - g
+        return h**-1 * dg
+
 

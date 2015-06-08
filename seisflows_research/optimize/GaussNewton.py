@@ -12,8 +12,8 @@ PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
 
-class GaussNewton(loadclass('optimize', 'base')):
-    """ Implements truncated Newton algorithm
+class GaussNewton(loadclass('optimize', 'Newton')):
+    """ Adds Gauss-Newton-CG algorithm to nonlinear optimization base class
     """
 
     def check(cls):
@@ -34,52 +34,10 @@ class GaussNewton(loadclass('optimize', 'base')):
             setattr(PAR, 'LCGPRECOND', 0)
 
 
-    def setup(cls):
-        super(GaussNewton, cls).setup()
-        cls.LCG = lib.LCG(cls.path, PAR.LCGTHRESH, PAR.LCGMAX, PAR.LCGPRECOND)
-
-
-    def initialize_newton(cls):
-        """ Initialize truncated Newton algorithm
-        """
+    def hessian_product(cls, g, h):
         unix.cd(cls.path)
 
-        m = loadnpy('m_new')
-        p = cls.LCG.initialize()
-        cls.delta = 1.e-3 * max(abs(p))**-1
-        savenpy('m_lcg', m + p*cls.delta)
-
-
-    def iterate_newton(cls):
-        """ Carry out truncated Newton iteration
-        """
-        unix.cd(cls.path)
-
-        g = loadnpy('g_new')
         dg = loadnpy('g_lcg')
+        return h**-1 * dg
 
-        p, isdone = cls.LCG.update(dg/cls.delta)
-
-        s = np.dot(g, p)
-        if s >= 0:
-            print ' Gauss Newton failed [not a descent direction]'
-            p, isdone = -g, True
-
-        # Eisenstat-Walker condition
-        LHS = np.linalg.norm(g+dg/cls.delta)
-        RHS = np.linalg.norm(g)
-        print ' LHS:  ', LHS
-        print ' RHS:  ', RHS
-        print ' RATIO:', LHS/RHS
-        print ''
-
-        if isdone:
-            savenpy('p_new', p)
-            savetxt('s_new', cls.delta*np.dot(g, p))
-        else:
-            m = loadnpy('m_new')
-            cls.delta = 1.e-3 * max(abs(p))**-1
-            savenpy('m_lcg', m + p*cls.delta)
-
-        return isdone
 
