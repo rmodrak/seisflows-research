@@ -18,7 +18,7 @@ import system
 import preprocess
 
 
-class FwiSourceEncoding2d(loadclass('solver', 'specfem2d')):
+class noise2d(loadclass('solver', 'specfem2d')):
 
     parameters = []
     parameters += ['vs']
