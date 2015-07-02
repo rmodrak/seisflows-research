@@ -63,11 +63,9 @@ class elastic(object):
         logpath = PATH.SUBMIT
 
         if 'kernel' in suffix:
-            minmax = Minmax(self.kernel_parameters)
-
-            # load kernels
             kernels = IOStruct(self.kernel_parameters)
 
+            minmax = Minmax(self.kernel_parameters)
             for iproc in range(PAR.NPROC):
                 # read database files
                 keys, vals = loadbypar(path, self.kernel_parameters, iproc, prefix, suffix)
@@ -82,11 +80,9 @@ class elastic(object):
             return kernels
 
         else:
-            minmax = Minmax(self.model_parameters)
-
-            # load model
             model = IOStruct(self.kernel_parameters)
 
+            minmax = Minmax(self.model_parameters)
             for iproc in range(PAR.NPROC):
                 # read database files
                 keys, vals = loadbypar(path, self.model_parameters, iproc, prefix, suffix)
