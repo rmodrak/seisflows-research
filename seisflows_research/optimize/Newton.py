@@ -6,7 +6,7 @@ from seisflows.tools.code import loadtxt, savetxt
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, loadclass
 
-from seisflows.optimize import lib
+from seisflows.optimize.lib.PLCG import PLCG
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -33,19 +33,29 @@ class Newton(loadclass('optimize', 'base')):
         if 'SCHEME' not in  PAR:
             setattr(PAR, 'SCHEME', 'Newton')
 
+        if 'LCGPRECOND' not in PAR:
+            setattr(PAR, 'LCGPRECOND', None)
+
+        if 'LCGFORCE' not in PAR:
+            setattr(PAR, 'LCGFORCE', 1.)
+
         if 'LCGMAX' not in PAR:
             setattr(PAR, 'LCGMAX', 2)
 
         if 'LCGTHRESH' not in PAR:
             setattr(PAR, 'LCGTHRESH', np.inf)
 
-        if 'LCGPRECOND' not in PAR:
-            setattr(PAR, 'LCGPRECOND', 0)
-
 
     def setup(cls):
         super(Newton, cls).setup()
-        cls.LCG = lib.LCG(cls.path, PAR.LCGTHRESH, PAR.LCGMAX, PAR.LCGPRECOND)
+
+        # prepare algorithm machinery
+        cls.LCG = PLCG(
+            cls.path, 
+            thresh=PAR.LCGTHRESH, 
+            itermax=PAR.LCGMAX, 
+            precond_type=PAR.LCGPRECOND,
+            eta=PAR.LCGFORCE)
 
 
     def initialize_newton(cls):
@@ -56,10 +66,10 @@ class Newton(loadclass('optimize', 'base')):
         m = loadnpy('m_new')
         g = loadnpy('g_new')
 
-        h = _eps / _norm(g)
-
         cls.LCG.initialize()
+
         v = loadnpy('LCG/p')
+        h = _eps / _norm(v)
 
         savenpy('m_lcg', m + h*v)
 
@@ -72,7 +82,9 @@ class Newton(loadclass('optimize', 'base')):
         m = loadnpy('m_new')
         g = loadnpy('g_new')
 
-        h = _eps / _norm(g)
+        v = loadnpy('LCG/p')
+        h = _eps / _norm(v)
+
         u = cls.hessian_product(g, h)
 
         isdone = cls.LCG.update(u)
