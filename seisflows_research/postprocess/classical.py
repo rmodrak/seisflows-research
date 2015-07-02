@@ -15,12 +15,12 @@ import system
 import solver
 
 
-class classical_regularization(loadclass('postprocess', 'base')):
-    """ Adds alternate regularization options to base class
+class classical(loadclass('postprocess', 'base')):
+    """ Adds classical regularization options to base class
 
-        Regularization strategies are experimental in the sense that 
-        we are trying to make them perform better when the model is 
-        expressed on an unstructured numerical grid.
+        While the underlying theory is classical, strategies included here are
+        also experimental in the sense that we are trying to optimize their
+        performance on unstructured numerical grids.
     """
 
     def check(self):
@@ -37,8 +37,14 @@ class classical_regularization(loadclass('postprocess', 'base')):
         if 'MASK' not in PATH:
             raise ParameterError(PATH, 'MASK')
 
-        if PATH.MASK:
-            assert exists(PATH.MASK)
+        if not exists(PATH.MASK):
+            raise Exception
+
+
+    def setup(self):
+        """ Performs any required initialization or setup tasks
+        """
+        pass
 
 
     def process_kernels(self, path):
@@ -54,25 +60,17 @@ class classical_regularization(loadclass('postprocess', 'base')):
                        path=path + '/' + 'kernels/sum',
                        span=PAR.SMOOTH)
 
-        # apply mask
-        mask = solver.merge(solver.load(PATH.MASK))
+            # apply mask
+            mask = solver.merge(solver.load(PATH.MASK))
+            v_smooth = solver.merge(solver.load(path +'/'+ 'kernels/sum'))
+            v_nosmooth = solver.merge(solver.load(path +'/'+ 'kernels/sum_nosmooth'))
 
-        try:
-            v = solver.merge(solver.load(path +'/'+ 'kernels/sum_nosmooth'))
-            w = solver.merge(solver.load(path +'/'+ 'kernels/sum'))
-        except:
-            v = solver.merge(solver.load(path +'/'+ 'kernels/sum'))
-            w = v
-
-        solver.save(path +'/'+ 'kernels/sum',
-                    solver.split(v*(mask) + w*(1.-mask)),
-                    suffix='_kernel')
+            solver.save(path +'/'+ 'kernels/sum',
+                        solver.split(v_smooth*mask),
+                        suffix='_kernel')
 
 
     def regularize(self, path):
-        """ Performs scaling, smoothing, and preconditioning operations in
-            accordance with parameter settings
-        """
         assert (exists(path))
 
         # regularize
