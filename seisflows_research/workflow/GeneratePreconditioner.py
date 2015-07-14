@@ -58,15 +58,12 @@ class GeneratePreconditioner(object):
         postprocess.setup()
 
         print 'Generating preconditioner...'
-        system.run('solver', 'generate_preconditioner',
+        system.run('solver', 'generate_precond',
                    hosts='all',
                    process_traces=process_traces,
                    model_path=PATH.MODEL_INIT,
                    model_name='model',
                    model_type='gll')
-
-        postprocess.combine_kernels(
-            path=PATH.GLOBAL)
 
         self.process_kernels(
             path=PATH.GLOBAL)
@@ -81,6 +78,10 @@ class GeneratePreconditioner(object):
 
     def process_kernels(self, path):
         assert (exists(path))
+        # sum kernels
+        system.run('solver', 'combine',
+                   hosts='head',
+                   path=path +'/'+ 'kernels')
 
         # take absolute value
         parts = solver.load(path +'/'+ 'kernels/sum')
