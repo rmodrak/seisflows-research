@@ -53,8 +53,8 @@ class Newton(loadclass('optimize', 'base')):
         cls.LCG = PLCG(
             cls.path, 
             thresh=PAR.LCGTHRESH, 
-            itermax=PAR.LCGMAX, 
-            precond_type=PAR.LCGPRECOND,
+            maxiter=PAR.LCGMAX, 
+            precond=PAR.LCGPRECOND,
             eta=PAR.LCGFORCE)
 
 
