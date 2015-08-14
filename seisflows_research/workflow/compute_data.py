@@ -1,6 +1,6 @@
 
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -9,7 +9,7 @@ import system
 import solver
 
 
-class SensitivityAnalysis(object):
+class compute_data(object):
     """ Tests solver by running forward simulation
     """
 
@@ -24,10 +24,7 @@ class SensitivityAnalysis(object):
         if 'LOCAL' not in PATH:
             setattr(PATH, 'LOCAL', None)
 
-        if 'MODEL_INIT' not in PATH:
-            raise Exception
-
-        if 'MODEL_PERT' not in PATH:
+        if 'MODEL' not in PATH:
             raise Exception
 
         if 'OUTPUT' not in PATH:

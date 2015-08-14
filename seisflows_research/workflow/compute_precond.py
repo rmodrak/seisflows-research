@@ -19,7 +19,7 @@ import preprocess
 import postprocess
 
 
-class GeneratePreconditioner(object):
+class compute_precond(object):
 
     def check(self):
         """ Checks parameters and paths
@@ -49,9 +49,11 @@ class GeneratePreconditioner(object):
 
 
     def main(self):
+        path = PATH.GLOBAL
+
         # prepare directory structure
-        unix.rm(PATH.GLOBAL)
-        unix.mkdir(PATH.GLOBAL)
+        unix.rm(path)
+        unix.mkdir(path)
 
         # set up workflow machinery
         preprocess.setup()
@@ -65,62 +67,50 @@ class GeneratePreconditioner(object):
                    model_name='model',
                    model_type='gll')
 
-        self.process_kernels(
-            path=PATH.GLOBAL)
+        postprocess.combine_kernels(path=path)
 
-        # save preconditioner
-        src = PATH.GLOBAL +'/'+ 'kernels/absval'
-        dst = PATH.OUTPUT +'/'+ 'precond'
-        unix.cp(src, dst)
+        for span in getlist(PAR.SMOOTH):
+            self.process_kernels(
+                path=path,
+                span=span)
+
+            # save preconditioner
+            src = path +'/'+ 'kernels/absval'
+            dst = PATH.OUTPUT +'/'+ 'precond_%04d' % span
+            unix.cp(src, dst)
 
         print 'Finished\n'
 
 
-    def process_kernels(self, path):
+    def process_kernels(self, path, span):
         assert (exists(path))
-        # sum kernels
-        system.run('solver', 'combine',
-                   hosts='head',
-                   path=path +'/'+ 'kernels')
 
         # take absolute value
         parts = solver.load(path +'/'+ 'kernels/sum')
         for key in solver.parameters:
             parts[key] = np.abs(parts[key])
 
-        solver.save(path +'/'+ 'kernels/absval',
-                    parts,
-                    suffix='_kernel')
+        self._write(path, parts)
 
-        # clip
-        if PAR.CLIP > 0.:
-            for key in solver.parameters:
-                maxval = np.max(parts[key])
-                if maxval > 0:
-                    parts[key] = np.clip(parts[key], 0., PAR.CLIP*maxval)
-
-            src = PATH.GLOBAL +'/'+ 'kernels/absval'
-            dst = PATH.GLOBAL +'/'+ 'kernels/absval_noclip'
-            unix.mv(src, dst)
-
-            solver.save(path +'/'+ 'kernels/absval',
-                        parts,
-                        suffix='_kernel')
 
         # smooth
-        if PAR.SMOOTH > 0.:
-            system.run('solver', 'smooth',
-                       hosts='head',
-                       path=path +'/'+ 'kernels/absval',
-                       span=PAR.SMOOTH)
+        system.run('solver', 'smooth',
+                   hosts='head',
+                   path=path +'/'+ 'kernels/absval',
+                   span=span)
 
         # normalize
         parts = solver.load(path +'/'+ 'kernels/absval')
         for key in solver.parameters:
             parts[key] = np.mean(parts[key])/parts[key]
-            solver.save(path +'/'+ 'kernels/absval',
-                        parts,
-                        suffix='_kernel')
+
+        self._write(path, parts)
+
+
+    def _write(self, path, parts):
+        solver.save(path +'/'+ 'kernels/absval',
+                    parts,
+                    suffix='_kernel')
 
 
 def process_traces(path):
@@ -131,4 +121,16 @@ def process_traces(path):
 
     s = preprocess.apply(adjoint.precond, [s], [h])
     preprocess.save(s, h, prefix='traces/adj/')
+
+
+def getlist(var):
+    if isinstance(var, list):
+        return var
+
+    if isinstance(var, float):
+        return [var]
+
+    if isinstance(var, int):
+        return [var]
+
 
