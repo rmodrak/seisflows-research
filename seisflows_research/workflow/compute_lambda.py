@@ -48,14 +48,19 @@ class compute_lambda(object):
         postprocess.process_kernels(
             path=PATH.GLOBAL)
 
-        g = solver.load(PATH.GLOBAL +'/'+ 'kernels/sum')
+        g = solver.load(PATH.GLOBAL +'/'+ 'kernels/sum', suffix='_kernel')
         m = solver.load(PATH.GLOBAL +'/'+ 'model')
 
-        assert 'x' in m
-        assert 'z' in m
-        x = m['x'][0]
-        z = m['z'][0]
-        mesh = stack(x, z)
+        try:
+            x = m['x'][0]
+            z = m['z'][0]
+            mesh = stack(x, z)
+        except:
+            from seisflows.seistools.io import loadbin
+            model_path = PATH.OUTPUT +'/'+ 'model_true'
+            x = loadbin(model_path, 0, 'x')
+            z = loadbin(model_path, 0, 'z')
+            mesh = stack(x, z)
 
         # apply mask
         if PATH.MASK:
@@ -63,7 +68,7 @@ class compute_lambda(object):
             for key in solver.parameters:
                 for iproc in range(PAR.NPROC):
                     g[key][iproc] *= mask[key][iproc]
-        solver.save(PATH.OUTPUT +'/'+ 'gradient', g)
+        solver.save(PATH.OUTPUT +'/'+ 'gradient', g, suffix='_kernel')
 
         # compute spatial derivatives
         nabla = postprocess.nabla
@@ -72,7 +77,7 @@ class compute_lambda(object):
             dg[key] = []
             for iproc in range(PAR.NPROC):
                 dg[key] += [nabla(mesh, m[key][iproc], g[key][iproc])]
-        solver.save(PATH.OUTPUT +'/'+ 'nabla', dg)
+        solver.save(PATH.OUTPUT +'/'+ 'nabla', dg, suffix='_kernel')
 
         # write regularized gradient
         kk = 0
@@ -82,7 +87,7 @@ class compute_lambda(object):
             for key in solver.parameters:
                 for iproc in range(PAR.NPROC):
                     gs[key][iproc] += lmbd*dg[key][iproc]
-            solver.save(PATH.OUTPUT +'/'+ 'gradient_%02d' % kk, gs)
+            solver.save(PATH.OUTPUT +'/'+ 'gradient_%02d' % kk, gs, suffix='_kernel')
 
         # compute baseline
         lmbd0 = scipy.optimize.fmin_powell(
@@ -94,10 +99,10 @@ class compute_lambda(object):
 
     def gradient_norm(self, lmbd, order=2, verbose=True):
         g = solver.merge(solver.load(
-                PATH.OUTPUT +'/'+ 'gradient'))
+                PATH.OUTPUT +'/'+ 'gradient', suffix='_kernel'))
 
         dg = solver.merge(solver.load(
-               PATH.OUTPUT +'/'+ 'nabla'))
+               PATH.OUTPUT +'/'+ 'nabla', suffix='_kernel'))
 
         f0 = np.linalg.norm(g, order)
         f = np.linalg.norm(g + lmbd*dg, order)

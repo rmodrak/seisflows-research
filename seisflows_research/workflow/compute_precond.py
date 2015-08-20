@@ -86,7 +86,7 @@ class compute_precond(object):
         assert (exists(path))
 
         # take absolute value
-        parts = solver.load(path +'/'+ 'kernels/sum')
+        parts = solver.load(path +'/'+ 'kernels/sum', suffix='_kernel')
         for key in solver.parameters:
             parts[key] = np.abs(parts[key])
 
@@ -100,7 +100,7 @@ class compute_precond(object):
                    span=span)
 
         # normalize
-        parts = solver.load(path +'/'+ 'kernels/absval')
+        parts = solver.load(path +'/'+ 'kernels/absval', suffix='_kernel')
         for key in solver.parameters:
             parts[key] = np.mean(parts[key])/parts[key]
 
