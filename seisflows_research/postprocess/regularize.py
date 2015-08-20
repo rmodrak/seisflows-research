@@ -42,10 +42,10 @@ class regularize(loadclass('postprocess', 'base')):
 
         # assertions
         assert PAR.REGULARIZE in [
+                'Creeping0', 'Creeping1', 'Creeping2',
+                'Jumping0', 'Jumping1', 'Jumping2',
+                'Tikhonov0', 'Tikhonov1', 'Tikhonov2',
                 'TotalVariation',
-                'Tikhonov0', 'Damping',
-                'Tikhonov1', 'Smoothing',
-                'Tikhonov2',
                 'None']
 
     def setup(self):
@@ -78,13 +78,20 @@ class regularize(loadclass('postprocess', 'base')):
         preprocess.setup()
 
         fullpath = path +'/'+  solver.getname
-        kernels = solver.load(fullpath)
+        g = solver.load(fullpath, suffix='_kernel')
         if not PAR.RADIUS:
             return
 
-        x = kernels['x'][0]
-        z = kernels['z'][0]
-        mesh = stack(x, z)
+        try:
+            x = g['x'][0]
+            z = g['z'][0]
+            mesh = stack(x, z)
+        except:
+            from seisflows.seistools.io import loadbin
+            model_path = PATH.OUTPUT +'/'+ 'model_true'
+            x = loadbin(model_path, 0, 'x')
+            z = loadbin(model_path, 0, 'z')
+            mesh = stack(x, z)
 
         lx = x.max() - x.min()
         lz = z.max() - z.min()
@@ -100,19 +107,19 @@ class regularize(loadclass('postprocess', 'base')):
         # mask sources
         mask = np.exp(-0.5*((x-h.sx[0])**2.+(z-h.sy[0])**2.)/sigma**2.)
         for key in solver.parameters:
-            weight = np.sum(mask*kernels[key][0])/np.sum(mask)
-            kernels[key][0] *= 1.-mask
-            kernels[key][0] += mask*weight
+            weight = np.sum(mask*g[key][0])/np.sum(mask)
+            g[key][0] *= 1.-mask
+            g[key][0] += mask*weight
 
         # mask receivers
         for ir in range(h.nr):
             mask = np.exp(-0.5*((x-h.rx[ir])**2.+(z-h.ry[ir])**2.)/sigma**2.)
             for key in solver.parameters:
-                weight = np.sum(mask*kernels[key][0])/np.sum(mask)
-                kernels[key][0] *= 1.-mask
-                kernels[key][0] += mask*weight
+                weight = np.sum(mask*g[key][0])/np.sum(mask)
+                g[key][0] *= 1.-mask
+                g[key][0] += mask*weight
 
-        solver.save(fullpath, kernels)
+        solver.save(fullpath, g, suffix='_kernel')
 
 
     def apply_regularization(self, path):
@@ -121,11 +128,16 @@ class regularize(loadclass('postprocess', 'base')):
         m = solver.load(path +'/'+ 'model')
         g = solver.load(path +'/'+ 'gradient', suffix='_kernel')
 
-        assert 'x' in m
-        assert 'z' in m
-        x = m['x'][0]
-        z = m['z'][0]
-        mesh = stack(x, z)
+        try:
+            x = m['x'][0]
+            z = m['z'][0]
+            mesh = stack(x, z)
+        except:
+            from seisflows.seistools.io import loadbin
+            model_path = PATH.OUTPUT +'/'+ 'model_true'
+            x = loadbin(model_path, 0, 'x')
+            z = loadbin(model_path, 0, 'z')
+            mesh = stack(x, z)
 
         for key in solver.parameters:            
             for iproc in range(PAR.NPROC):
@@ -142,20 +154,35 @@ class regularize(loadclass('postprocess', 'base')):
             dg = grid2mesh(DG, grid, mesh)
             return np.sign(dg)/np.mean(m)
 
-        elif PAR.REGULARIZE in ['Tikhonov0', 'Damping']:
-            return v/np.mean(m)
+        elif PAR.REGULARIZE in ['Tikhonov0', 'Creeping0']:
+            return g/np.mean(m)
 
-        elif PAR.REGULARIZE in ['Tikhonov1', 'Smoothing']:
+        elif PAR.REGULARIZE in ['Tikhonov1', 'Creeping1']:
             G, grid = mesh2grid(g, mesh)
             DG = nabla(G, order=1)
             dg = grid2mesh(DG, grid, mesh)
             return -dg/np.mean(m)
 
-        elif PAR.REGULARIZE in ['Tikhonov2']:
+        elif PAR.REGULARIZE in ['Tikhonov2', 'Creeping2']:
             G, grid = mesh2grid(g, mesh)
             DG = nabla(G, order=2)
             dg = grid2mesh(DG, grid, mesh)
-            return dg/np.mean(m)
+            return -dg/np.mean(m)
+
+        elif PAR.REGULARIZE in ['Jumping0']:
+            return g/np.mean(m)
+
+        elif PAR.REGULARIZE in ['Jumping1']:
+            M, grid = mesh2grid(m, mesh)
+            DM = nabla(M, order=1)
+            dm = grid2mesh(DM, grid, mesh)
+            return dm/np.mean(m)
+
+        elif PAR.REGULARIZE in ['Jumping2']:
+            M, grid = mesh2grid(m, mesh)
+            DM = nabla(M, order=2)
+            dm = grid2mesh(DM, grid, mesh)
+            return -dm/np.mean(m)
 
         elif PAR.REGULARIZE in ['None']:
             dim = g.shape
