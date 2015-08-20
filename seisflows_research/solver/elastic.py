@@ -57,6 +57,16 @@ class elastic(object):
         kernel_parameters += ['vs']
 
 
+    if PAR.DENSITY == 'Variable':
+        density_scaling = None
+        model_parameters += ['rho']
+        kernel_parameters += ['rho']
+
+    elif PAR.DENSITY == 'Constant':
+        density_scaling = None
+
+
+
     def load(self, path, prefix='', suffix='', verbose=True):
         """ reads SPECFEM model or kernels
         """
@@ -95,10 +105,8 @@ class elastic(object):
 
                 # convert on the fly from one set of parameters to another
                 mapped = self.map_forward(keys, vals)
-
-                rho = mapped.pop('rho')
-                if PAR.DENSITY == 'variable':
-                     raise Exception
+                if PAR.DENSITY not in ['Variable']:
+                    rho = mapped.pop('rho')
                 for key, val in mapped.items():
                     model[key] += [val]
 
