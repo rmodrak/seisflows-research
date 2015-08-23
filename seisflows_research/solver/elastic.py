@@ -61,10 +61,10 @@ class elastic(object):
         density_scaling = None
         model_parameters += ['rho']
         kernel_parameters += ['rho']
-
     elif PAR.DENSITY == 'Constant':
         density_scaling = None
-
+    elif PAR.DENSITY == 'Gardner':
+        from seisflows.seistools.maps import rho_gardner as density_scaling
 
 
     def load(self, path, prefix='', suffix='', verbose=True):
@@ -105,7 +105,9 @@ class elastic(object):
 
                 # convert on the fly from one set of parameters to another
                 mapped = self.map_forward(keys, vals)
-                if PAR.DENSITY not in ['Variable']:
+                if PAR.DENSITY in ['Variable']:
+                    pass
+                else:
                     rho = mapped.pop('rho')
                 for key, val in mapped.items():
                     model[key] += [val]
@@ -155,7 +157,7 @@ class elastic(object):
                 elif PAR.DENSITY == 'Constant':
                     savebin(rho, path, iproc, prefix+'rho'+suffix)
                 else:
-                    rho = self.density_scaling(keys, vals)
+                    rho = self.density_scaling(mapped.keys(), mapped.values())
                     savebin(rho, path, iproc, prefix+'rho'+suffix)
 
                 for key, val in mapped.items():

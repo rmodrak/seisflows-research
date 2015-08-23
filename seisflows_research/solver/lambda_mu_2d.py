@@ -50,9 +50,7 @@ class lambda_mu_2d(loadclass('solver', 'elastic2d')):
         model = getstruct(loadbypar(self.getpath+'/'+'DATA/', model_parameters, iproc))
         kernels = getstruct(loadbypar(self.getpath+'/'+'OUTPUT_FILES/', kernel_parameters, iproc, suffix='_kernel'))
 
-        unix.mkdir_gpfs(path)
         unix.mkdir(join(path, self.getname))
-
         self.save(join(path, self.getname), map(model, kernels), suffix='_kernel')
 
         
