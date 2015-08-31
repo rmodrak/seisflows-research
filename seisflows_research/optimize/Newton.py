@@ -112,3 +112,5 @@ class Newton(loadclass('optimize', 'base')):
         return h**-1 * dg
 
 
+    def initial_step(cls):
+        return 1.
