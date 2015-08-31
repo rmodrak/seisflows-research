@@ -1,5 +1,5 @@
 
-from os.path import join
+from os.path import basename, join
 
 from seisflows.seistools.io import loadbypar
 
@@ -39,7 +39,7 @@ class lambda_mu_2d(loadclass('solver', 'elastic2d')):
     assert PAR.MATERIALS == 'lambda_mu'
 
     def export_kernels(self, path):
-        assert PAR.NPROC == 1
+        assert self.mesh.nproc == 1
         iproc = 0
 
         path = join(path, 'kernels')
@@ -50,8 +50,8 @@ class lambda_mu_2d(loadclass('solver', 'elastic2d')):
         model = getstruct(loadbypar(self.getpath+'/'+'DATA/', model_parameters, iproc))
         kernels = getstruct(loadbypar(self.getpath+'/'+'OUTPUT_FILES/', kernel_parameters, iproc, suffix='_kernel'))
 
-        unix.mkdir(join(path, self.getname))
-        self.save(join(path, self.getname), map(model, kernels), suffix='_kernel')
+        unix.mkdir(join(path, basename(self.path)))
+        self.save(join(path, basename(self.path)), map(model, kernels), suffix='_kernel')
 
         
 

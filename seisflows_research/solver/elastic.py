@@ -76,7 +76,7 @@ class elastic(object):
             kernels = IOStruct(self.kernel_parameters)
 
             minmax = Minmax(self.kernel_parameters)
-            for iproc in range(PAR.NPROC):
+            for iproc in range(self.mesh.nproc):
                 # read database files
                 keys, vals = loadbypar(path, self.kernel_parameters, iproc, prefix, suffix)
                 minmax.update(keys, vals)
@@ -93,7 +93,7 @@ class elastic(object):
             model = IOStruct(self.kernel_parameters)
 
             minmax = Minmax(self.model_parameters)
-            for iproc in range(PAR.NPROC):
+            for iproc in range(self.mesh.nproc):
                 # read database files
                 keys, vals = loadbypar(path, self.model_parameters, iproc, prefix, suffix)
                 minmax.update(keys, vals)
@@ -124,7 +124,7 @@ class elastic(object):
         if 'kernel' in suffix:
             kernels = obj
             # write kernels
-            for iproc in range(PAR.NPROC):
+            for iproc in range(self.mesh.nproc):
                 keys = kernels.keys()
                 vals = []
                 for key in keys:
@@ -137,7 +137,7 @@ class elastic(object):
         else:
             # write model
             model = obj
-            for iproc in range(PAR.NPROC):
+            for iproc in range(self.mesh.nproc):
                 keys = model.keys()
                 vals = []
                 for key in keys:
@@ -163,6 +163,12 @@ class elastic(object):
                 for key, val in mapped.items():
                     savebin(val, path, iproc, prefix+key+suffix)
 
+
+    def check_mesh_properties(self, path=None, parameters=None):
+        if not parameters:
+            parameters = self.model_parameters
+        return super(elastic, self).check_mesh_properties(
+            path, parameters)
 
     @property
     def parameters(self):

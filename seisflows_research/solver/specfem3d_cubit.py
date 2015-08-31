@@ -116,9 +116,9 @@ class specfem3d_cubit(loadclass('solver', 'specfem3d')):
 
     def export_kernels(self, path):
         unix.mkdir_gpfs(join(path, 'kernels'))
-        unix.mkdir(join(path, 'kernels', self.getname))
+        unix.mkdir(join(path, 'kernels', basename(self.path)))
         src = join(glob(self.model_databases +'/'+ '*kernel.bin'))
-        dst = join(path, 'kernels', self.getname)
+        dst = join(path, 'kernels', basename(self.path))
         unix.mv(src, dst)
 
 
