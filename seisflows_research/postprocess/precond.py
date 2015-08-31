@@ -21,13 +21,13 @@ class precond(loadclass('postprocess', 'base')):
     def check(self):
         """ Checks parameters and paths
         """
-        super(debug, self).check()        
+        super(precond, self).check()        
 
 
     def setup(self):
         """ Performs any required initialization or setup tasks
         """
-        super(debug, self).setup()
+        super(precond, self).setup()
 
         if PAR.PRECOND.lower() in ['pca', 'principal_components']:
             self.precond = principle_components

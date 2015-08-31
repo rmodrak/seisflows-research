@@ -117,9 +117,9 @@ def process_traces(path):
     unix.cd(path)
 
     s, h = preprocess.load(prefix='traces/syn/')
-    s = preprocess.apply(preprocess.process_traces, [s], [h])
 
     s = preprocess.apply(adjoint.precond, [s], [h])
+
     preprocess.save(s, h, prefix='traces/adj/')
 
 
