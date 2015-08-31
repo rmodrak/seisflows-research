@@ -18,7 +18,7 @@ import system
 import solver
 
 
-class projection(loadclass('postprocess', 'base')):
+class project(loadclass('postprocess', 'base')):
     """ Projects from GLL mesh to Gaussian function basis
 
         SO FAR, CAN ONLY BE USED FOR ACOUSTIC 2D WAVEFORM INVERSION.
@@ -57,23 +57,28 @@ class projection(loadclass('postprocess', 'base')):
         w = self.project_to_gll(c, weight=False)**-1
         self.nodes.weights = w
 
-        m = solver.merge(solver.load(PATH.MODEL_INIT))
-        c = self.project_from_gll(m)
-
-        m = self.project_to_gll(c)
-        path = join(PATH.OUTPUT, 'model_init_projected')
-        solver.save(path, solver.split(m))
-
-        # overwrite initial model
-        path = join(PATH.OPTIMIZE, 'm_new')
-        savenpy(path, c)
-
         if exists(PATH.MODEL_TRUE):
+            # write true model
             m = solver.merge(solver.load(PATH.MODEL_TRUE))
             c = self.project_from_gll(m)
             m = self.project_to_gll(c)
             path = join(PATH.OUTPUT, 'model_true_projected')
             solver.save(path, solver.split(m))
+
+        # write initial model
+        m = solver.merge(solver.load(PATH.MODEL_INIT))
+        c = self.project_from_gll(m)
+        m = self.project_to_gll(c)
+        path = join(PATH.OUTPUT, 'model_init_projected')
+        solver.save(path, solver.split(m))
+
+        # overwrite m_new
+        if PAR.REFERENCE:
+            filename = join(PATH.OPTIMIZE, 'm_new')
+            savenpy(filename, np.zeros(PAR.NX*PAR.NZ))
+        else:
+            filename = join(PATH.OPTIMIZE, 'm_new')
+            savenpy(filename, c)
 
 
     def write_gradient(self, path):

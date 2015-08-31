@@ -26,18 +26,28 @@ class test_projection(loadclass('workflow', 'inversion')):
         """
         super(test_projection, self).check()
 
+        if 'REFERENCE' not in PAR:
+            setattr(PAR, 'REFERENCE', False)
 
-    def prepare_model(self, path='', suffix=''):
+
+    def write_model(self, path='', suffix=''):
         """ Writes model in format used by solver
         """
         unix.mkdir(path)
         src = PATH.OPTIMIZE +'/'+ 'm_' + suffix
         dst = path +'/'+ 'model'
 
-        solver.save(dst,
-            solver.split(
-                postprocess.project_to_gll(
-                    loadnpy(src))))
+        if PAR.REFERENCE:
+            solver.save(dst,
+                solver.split(
+                    solver.load(PATH.MODEL_INIT) +
+                    postprocess.project_to_gll(
+                        loadnpy(src))))
+        else:
+            solver.save(dst,
+                solver.split(
+                    postprocess.project_to_gll(
+                        loadnpy(src))))
 
 
     def save_gradient(self):
