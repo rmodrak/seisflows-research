@@ -26,17 +26,11 @@ class compute_lambda(object):
     def check(self):
         """ Checks parameters and paths
         """
-        if 'REGULARIZE' not in PAR:
-            raise ParameterError
-
         if 'INPUT' not in PATH:
             setattr(PATH, 'INPUT', None)
 
         if not PATH.INPUT:
             migration.check()
-
-        assert PAR.POSTPROCESS in \
-            ['regularize']
 
 
     def main(self):
