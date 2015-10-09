@@ -35,7 +35,7 @@ class GaussNewton(loadclass('optimize', 'Newton')):
 
 
     def hessian_product(cls, g, h):
-        unix.cd(cls.path)
+        unix.cd(PATH.OPTIMIZE)
 
         dg = loadnpy('g_lcg')
         return h**-1 * dg

@@ -51,7 +51,7 @@ class Newton(loadclass('optimize', 'base')):
 
         # prepare algorithm machinery
         cls.LCG = PLCG(
-            cls.path, 
+            path=PATH.OPTIMIZE, 
             thresh=PAR.LCGTHRESH, 
             maxiter=PAR.LCGMAX, 
             precond=PAR.LCGPRECOND,
@@ -61,7 +61,7 @@ class Newton(loadclass('optimize', 'base')):
     def initialize_newton(cls):
         """ Initialize truncated Newton algorithm
         """
-        unix.cd(cls.path)
+        unix.cd(PATH.OPTIMIZE)
 
         m = loadnpy('m_new')
         g = loadnpy('g_new')
@@ -77,7 +77,7 @@ class Newton(loadclass('optimize', 'base')):
     def iterate_newton(cls):
         """ Carry out truncated Newton iteration
         """
-        unix.cd(cls.path)
+        unix.cd(PATH.OPTIMIZE)
 
         m = loadnpy('m_new')
         g = loadnpy('g_new')
@@ -114,3 +114,6 @@ class Newton(loadclass('optimize', 'base')):
 
     def initial_step(cls):
         return 1.
+
+
+    restarted = False

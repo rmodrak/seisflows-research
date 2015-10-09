@@ -54,7 +54,7 @@ class Newton(loadclass('workflow', 'inversion')):
         if PAR.VERBOSE:
             print " LCG iteration", self.ilcg
 
-        self.prepare_model(path=PATH.HESS, suffix='lcg')
+        self.write_model(path=PATH.HESS, suffix='lcg')
 
         system.run('solver', 'apply_hess',
                    hosts='all',
