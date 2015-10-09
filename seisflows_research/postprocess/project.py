@@ -27,7 +27,10 @@ class project(loadclass('postprocess', 'base')):
     def check(self):
         """ Checks parameters and paths
         """
-        super(projection, self).check()
+        super(project, self).check()
+
+        if 'REFERENCE' not in PAR:
+            setattr(PAR, 'REFERENCE', None)
 
         assert PAR.SOLVER in ['specfem2d', 'specfem2d_legacy']
         assert PAR.MATERIALS in ['Acoustic']
@@ -36,7 +39,7 @@ class project(loadclass('postprocess', 'base')):
     def setup(self):
         """ Sets up basis functions
         """
-        super(projection, self).setup()
+        super(project, self).setup()
 
         x,z = self.getxz()
         dx = (x.max()-x.min())/(PAR.NX+2)
@@ -73,6 +76,7 @@ class project(loadclass('postprocess', 'base')):
         solver.save(path, solver.split(m))
 
         # overwrite m_new
+        unix.mkdir(PATH.OPTIMIZE)
         if PAR.REFERENCE:
             filename = join(PATH.OPTIMIZE, 'm_new')
             savenpy(filename, np.zeros(PAR.NX*PAR.NZ))
@@ -117,7 +121,7 @@ class project(loadclass('postprocess', 'base')):
         c = []
         for ib in range((PAR.NX*PAR.NZ)):
            c += [np.dot(self.gauss2(ib,x,z), v)]
-        return c
+        return np.array(c)
 
 
     def project_to_gll(self, c, weight=True):
