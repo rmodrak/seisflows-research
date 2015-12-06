@@ -40,7 +40,7 @@ class GaussNewton(loadclass('postprocess', 'base')):
             path,
             solver.parameters)
 
-        self.process_kernels_lcg(
+        self.process_kernels(
             path,
             solver.parameters)
 
@@ -57,12 +57,4 @@ class GaussNewton(loadclass('postprocess', 'base')):
         solver.save(PATH.HESS +'/'+ 'gauss_newton_lcg', solver.split(g))
         savenpy(PATH.OPTIMIZE +'/'+ 'g_lcg', g)
 
-
-    def process_kernels_lcg(self, path, parameters):
-        if PAR.SMOOTH > 0.:
-            system.run('solver', 'smooth',
-                       hosts='head',
-                       path=path + '/' + 'kernels/sum',
-                       parameters=parameters,
-                       span=PAR.SMOOTH)
 

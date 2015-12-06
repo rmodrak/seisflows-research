@@ -29,7 +29,6 @@ class Newton(loadclass('postprocess', 'base')):
             raise ParameterError(PATH, 'HESS')
 
 
-
     def write_gradient_lcg(self, path):
 
         # check input arguments
@@ -40,7 +39,7 @@ class Newton(loadclass('postprocess', 'base')):
             path,
             solver.parameters)
 
-        self.process_kernels_lcg(
+        self.process_kernels(
             path,
             solver.parameters)
 
@@ -57,12 +56,4 @@ class Newton(loadclass('postprocess', 'base')):
         solver.save(PATH.HESS +'/'+ 'newton_lcg', solver.split(g))
         savenpy(PATH.OPTIMIZE +'/'+ 'g_lcg', g)
 
-
-    def process_kernels_lcg(self, path, parameters):
-        if PAR.SMOOTH > 0.:
-            system.run('solver', 'smooth',
-                       hosts='head',
-                       path=path + '/' + 'kernels/sum',
-                       span=PAR.SMOOTH,
-                       parameters=parameters)
 
