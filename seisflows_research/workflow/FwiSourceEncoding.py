@@ -15,8 +15,9 @@ import solver
 import optimize
 import preprocess
 
+from seisflows.workflow.inversion import base
 
-class FwiSourceEncoding(loadclass('workflow', 'inversion')):
+class FwiSourceEncoding(base):
     """ Source encoding subclass
     """
     def check(self):
@@ -122,7 +123,7 @@ class FwiSourceEncoding(loadclass('workflow', 'inversion')):
     def prepare_receivers(self):
         """ Generates receiver factors
         """
-        if self.iter == 1:
+        if optimize.iter == 1:
             # generate receiver factors
             if PAR.FAILRATE == 0:
                 rs = np.ones((PAR.NREC, PAR.NSRC))
