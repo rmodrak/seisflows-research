@@ -36,12 +36,18 @@ class Newton(loadclass('postprocess', 'base')):
         if not exists(path):
             raise Exception()
 
-        self.combine_kernels(path)
-        self.process_kernels_lcg(path)
+        self.combine_kernels(
+            path,
+            solver.parameters)
+
+        self.process_kernels_lcg(
+            path,
+            solver.parameters)
 
         # write gradient
         g = solver.merge(solver.load(
                 PATH.HESS +'/'+ 'kernels/sum',
+                suffix='_kernel',
                 verbose=True))
 
         g *= solver.merge(solver.load(
@@ -52,18 +58,11 @@ class Newton(loadclass('postprocess', 'base')):
         savenpy(PATH.OPTIMIZE +'/'+ 'g_lcg', g)
 
 
-    def process_kernels_lcg(self, path):
-
-        # process kernels
-        if PAR.CLIP > 0.:
-            system.run('solver', 'clip',
-                       hosts='head',
-                       path=path + '/' + 'kernels/sum',
-                       thresh=PAR.CLIP)
-
+    def process_kernels_lcg(self, path, parameters):
         if PAR.SMOOTH > 0.:
             system.run('solver', 'smooth',
                        hosts='head',
                        path=path + '/' + 'kernels/sum',
-                       span=PAR.SMOOTH)
+                       span=PAR.SMOOTH,
+                       parameters=parameters)
 
