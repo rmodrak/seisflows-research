@@ -59,6 +59,9 @@ class compute_precond(object):
         preprocess.setup()
         postprocess.setup()
 
+        system.run('solver', 'setup',
+                   hosts='all')
+
         print 'Generating preconditioner...'
         system.run('solver', 'generate_precond',
                    hosts='all',
@@ -67,11 +70,14 @@ class compute_precond(object):
                    model_name='model',
                    model_type='gll')
 
-        postprocess.combine_kernels(path=path)
+        postprocess.combine_kernels(
+            path=path,
+            parameters=solver.parameters)
 
         for span in getlist(PAR.SMOOTH):
             self.process_kernels(
                 path=path,
+                parameters=solver.parameters,
                 span=span)
 
             # save preconditioner
@@ -82,43 +88,61 @@ class compute_precond(object):
         print 'Finished\n'
 
 
-    def process_kernels(self, path, span):
-        assert (exists(path))
+    def process_kernels(self, path, parameters, span):
+        assert exists(path)
+        assert len(parameters) > 0
 
         # take absolute value
         parts = solver.load(path +'/'+ 'kernels/sum', suffix='_kernel')
-        for key in solver.parameters:
+        for key in parameters:
             parts[key] = np.abs(parts[key])
 
-        self._write(path, parts)
+        self._save(path, parts)
 
 
         # smooth
         system.run('solver', 'smooth',
                    hosts='head',
                    path=path +'/'+ 'kernels/absval',
+                   parameters=parameters,
                    span=span)
 
         # normalize
         parts = solver.load(path +'/'+ 'kernels/absval', suffix='_kernel')
-        for key in solver.parameters:
+        for key in parameters:
             parts[key] = np.mean(parts[key])/parts[key]
 
-        self._write(path, parts)
+        self._save(path, parts)
 
 
-    def _write(self, path, parts):
+
+    def _save(self, path, parts):
         solver.save(path +'/'+ 'kernels/absval',
                     parts,
                     suffix='_kernel')
 
 
+    def _load(path, parameters, prefix='', suffix=''):
+        parts = {}
+        for key in parameters:
+            parts[key] = []
+
+        for iproc in range(solver.mesh.nproc):
+            # read database files
+            keys, vals = loadbypar(path, parameters, iproc, prefix, suffix)
+            for key, val in zip(keys, vals):
+                parts[key] += [val]
+        return parts
+
+
+
 def process_traces(path):
     unix.cd(path)
 
+    d, h = preprocess.load(prefix='traces/obs/')
     s, h = preprocess.load(prefix='traces/syn/')
 
-    s = preprocess.apply(adjoint.precond, [s], [h])
+    s = preprocess.apply(adjoint.precond2, [s, d], [h])
 
     preprocess.save(s, h, prefix='traces/adj/')
 

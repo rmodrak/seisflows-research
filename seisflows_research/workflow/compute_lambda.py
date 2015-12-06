@@ -40,7 +40,8 @@ class compute_lambda(object):
             migration.main()
 
         postprocess.process_kernels(
-            path=PATH.GLOBAL)
+            path=PATH.GLOBAL,
+            parameters=solver.parameters)
 
         g = solver.load(PATH.GLOBAL +'/'+ 'kernels/sum', suffix='_kernel')
         m = solver.load(PATH.GLOBAL +'/'+ 'model')
