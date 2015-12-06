@@ -94,7 +94,9 @@ class project(loadclass('postprocess', 'base')):
         if not exists(path):
             raise Exception()
 
-        self.combine_kernels(path)
+        self.combine_kernels(
+            path=path,
+            parameters=solver.parameters)
 
         g = solver.merge(solver.load(
                  path +'/'+ 'kernels/sum',
@@ -164,4 +166,23 @@ class project(loadclass('postprocess', 'base')):
 
         return gauss2(x,z,mu,sigma, normalize=False)
 
+
+#   def process_kernels(self, path, parameters):
+#        """ Processes kernels in accordance with parameter settings
+#        """
+#        fullpath = path +'/'+ 'kernels'
+#        assert exists(path)
+#
+#        if exists(fullpath +'/'+ 'sum'):
+#            unix.mv(fullpath +'/'+ 'sum', fullpath +'/'+ 'sum_nofix')
+#
+#        # mask sources and receivers
+#        system.run('postprocess', 'fix_near_field',
+#                   hosts='all',
+#                   path=fullpath)
+#
+#        system.run('solver', 'combine',
+#                   hosts='head',
+#                   path=fullpath,
+#                   parameters=parameters)
 
