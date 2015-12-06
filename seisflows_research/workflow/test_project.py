@@ -54,13 +54,13 @@ class test_project(loadclass('workflow', 'inversion')):
 
     def save_gradient(self):
         src = join(PATH.GRAD, 'gradient')
-        dst = join(PATH.OUTPUT, 'gradient_%04d' % self.iter)
+        dst = join(PATH.OUTPUT, 'gradient_%04d' % optimize.iter)
         unix.mv(src, dst)
 
 
     def save_model(self):
         src = PATH.OPTIMIZE +'/'+ 'm_new'
-        dst = join(PATH.OUTPUT, 'model_%04d' % self.iter)
+        dst = join(PATH.OUTPUT, 'model_%04d' % optimize.iter)
 
         if PAR.REFERENCE:
             model = (
@@ -79,6 +79,6 @@ class test_project(loadclass('workflow', 'inversion')):
 
     def save_kernels(self):
         src = join(PATH.GRAD, 'kernels')
-        dst = join(PATH.OUTPUT, 'kernels_%04d' % self.iter)
+        dst = join(PATH.OUTPUT, 'kernels_%04d' % optimize.iter)
         unix.mv(src, dst)
 
