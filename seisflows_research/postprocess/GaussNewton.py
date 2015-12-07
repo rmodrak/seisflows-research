@@ -13,7 +13,7 @@ import solver
 import system
 
 
-class GaussNewton(loadclass('postprocess', 'base')):
+class GaussNewton(loadclass('postprocess', 'tikhonov1')):
 
     def check(self):
         super(GaussNewton, self).check()
@@ -29,29 +29,32 @@ class GaussNewton(loadclass('postprocess', 'base')):
             raise ParameterError(PATH, 'HESS')
 
 
-
     def write_gradient_lcg(self, path):
+        """ Reads kernels and writes gradient of objective function
+        """
+        if 'OPTIMIZE' not in PATH:
+            raise ParameterError(PATH, 'OPTIMIZE')
 
-        # check input arguments
         if not exists(path):
             raise Exception()
 
-        self.combine_kernels(
-            path,
-            solver.parameters)
+        self.combine_kernels(path, solver.parameters)
+        self.process_kernels(path, solver.parameters)
 
-        self.process_kernels(
-            path,
-            solver.parameters)
-
-        # write gradient
         g = solver.merge(solver.load(
-                PATH.HESS +'/'+ 'kernels/sum',
-                suffix='_kernel',
-                verbose=True))
+                 path +'/'+ 'kernels/sum',
+                 suffix='_kernel',
+                 verbose=True))
 
-        g *= solver.merge(solver.load(
-                path +'/'+ 'model'))
+        if PAR.LOGARITHMIC:
+            # convert from logarithmic to absolute perturbations
+            g *= solver.merge(solver.load(path +'/'+ 'model'))
+        self.save(path, g)
+
+        if PATH.MASK:
+            # apply mask
+            g *= solver.merge(solver.load(PATH.MASK))
+            self.save(path, g, backup='nomask')
 
         # write gradient
         solver.save(PATH.HESS +'/'+ 'gauss_newton_lcg', solver.split(g))
