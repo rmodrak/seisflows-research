@@ -62,10 +62,9 @@ class compute_precond(object):
         system.run('solver', 'setup',
                    hosts='all')
 
-        print 'Generating preconditioner...'
-        system.run('solver', 'generate_precond',
+        print 'Computing preconditioner...'
+        system.run('workflow', 'compute_precond',
                    hosts='all',
-                   process_traces=process_traces,
                    model_path=PATH.MODEL_INIT,
                    model_name='model',
                    model_type='gll')
@@ -86,6 +85,26 @@ class compute_precond(object):
             unix.cp(src, dst)
 
         print 'Finished\n'
+
+
+    def compute_precond(self, model_path=None, model_name=None, model_type='gll'):
+        assert(model_name)
+        assert(model_type)
+        assert (exists(model_path))
+
+        unix.cd(solver.getpath)
+
+        src = model_path
+        dst = solver.model_databases
+        solver.save(dst, solver.load(src))
+
+        solver.forward()
+        unix.mv(solver.data_wildcard, 'traces/syn')
+        solver.initialize_adjoint_traces('traces/syn')
+        self.process_traces(solver.getpath)
+
+        solver.adjoint()
+        solver.export_kernels(PATH.GLOBAL)
 
 
     def process_kernels(self, path, parameters, span):
@@ -135,16 +154,15 @@ class compute_precond(object):
         return parts
 
 
+    def process_traces(self, path):
+        unix.cd(path)
 
-def process_traces(path):
-    unix.cd(path)
+        d, h = preprocess.load(prefix='traces/obs/')
+        s, h = preprocess.load(prefix='traces/syn/')
 
-    d, h = preprocess.load(prefix='traces/obs/')
-    s, h = preprocess.load(prefix='traces/syn/')
+        s = preprocess.apply(adjoint.precond2, [s, d], [h])
 
-    s = preprocess.apply(adjoint.precond2, [s, d], [h])
-
-    preprocess.save(s, h, prefix='traces/adj/')
+        preprocess.save(s, h, prefix='traces/adj/')
 
 
 def getlist(var):
