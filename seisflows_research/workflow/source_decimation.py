@@ -18,13 +18,13 @@ import postprocess
 
 from seisflows.workflow.inversion import base
 
-class FwiSourceSubset(base):
+class source_decimation(base):
     """ Source subset subclass
     """
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
-        super(FwiSourceSubset, self).check()
+        super(source_decimation, self).check()
 
         if 'NSRC_SUBSET' not in PAR:
             raise ParameterError

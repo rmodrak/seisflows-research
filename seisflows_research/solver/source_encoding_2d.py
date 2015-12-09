@@ -16,11 +16,11 @@ import system
 import preprocess
 
 
-class FwiSourceEncoding2d(loadclass('solver', 'specfem2d_legacy')):
+class source_encoding_2d(loadclass('solver', 'specfem2d_legacy')):
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
-        super(FwiSourceEncoding2d, self).check()
+        super(source_encoding_2d, self).check()
 
 
     def initialize_solver_directories(self):
@@ -29,7 +29,7 @@ class FwiSourceEncoding2d(loadclass('solver', 'specfem2d_legacy')):
         if 'NT_PADDED' not in PAR:
             raise Exception
 
-        super(FwiSourceEncoding2d, self).initialize_solver_directories()
+        super(source_encoding_2d, self).initialize_solver_directories()
         solvertools.setpar('NSOURCES', PAR.NSRC)
         solvertools.setpar('nt', PAR.NT_PADDED)
 

@@ -12,7 +12,7 @@ PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
 
-class weighted(loadclass('preprocess', 'base')):
+class modified_residual(loadclass('preprocess', 'base')):
     """ Data preprocessing class
     """
 

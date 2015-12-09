@@ -14,7 +14,7 @@ import system
 import solver
 
 
-class DoubleDifference(loadclass('preprocess', 'default')):
+class double_difference(loadclass('preprocess', 'default')):
     """ Data preprocessing class
     """
 
@@ -41,6 +41,7 @@ class DoubleDifference(loadclass('preprocess', 'default')):
         s = self.apply(self.generate_adjoint_traces, [s, d, r], [h])
         self.save(s, h, prefix='traces/adj/')
 
+
     def write_residuals(self, s, d, h):
         """ Computes residuals from observations and synthetics
         """
@@ -66,6 +67,7 @@ class DoubleDifference(loadclass('preprocess', 'default')):
         np.savetxt('residuals', np.sqrt(np.sum(r*r, 0)))
 
         return np.array(r)
+
 
     def generate_adjoint_traces(self, s, d, r, h):
         """ Computes adjoint traces from observed and synthetic traces

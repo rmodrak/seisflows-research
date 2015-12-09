@@ -17,13 +17,13 @@ import preprocess
 
 from seisflows.workflow.inversion import base
 
-class FwiSourceEncoding(base):
+class source_encoding(base):
     """ Source encoding subclass
     """
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
-        super(FwiSourceEncoding, self).check()
+        super(source_encoding, self).check()
 
         # check source encoding parameters
         if 'ENCODING' not in PAR:
@@ -49,7 +49,7 @@ class FwiSourceEncoding(base):
     def setup(self):
         """ Lays groundwork for inversion
         """
-        super(FwiSourceEncoding, self).setup()
+        super(source_encoding, self).setup()
         self.multiload(path=PATH.DATA, tag='obs')
 
 
@@ -79,7 +79,7 @@ class FwiSourceEncoding(base):
             mapping=lambda _: range(PAR.NSRC))
 
         # generate synthetics
-        super(FwiSourceEncoding, self).initialize()
+        super(source_encoding, self).initialize()
 
 
     def prepare_sources(self):
