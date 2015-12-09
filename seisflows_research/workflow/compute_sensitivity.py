@@ -5,7 +5,7 @@ from os.path import join
 import numpy as np
 
 from seisflows.tools import unix
-from seisflows.tools.code import exists
+from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError
 
@@ -61,8 +61,20 @@ class compute_sensitivity(object):
         m = solver.merge(solver.load(PATH.MODEL))
         dm = solver.merge(solver.load(PATH.PERTURB))
 
-        self.evaluate_gradient(m+dm, join(PATH.GLOBAL, 'eval1'))
-        self.evaluate_gradient(m-dm, join(PATH.GLOBAL, 'eval2'))
+        path1 = join(PATH.GLOBAL, 'eval1')
+        path2 = join(PATH.GLOBAL, 'eval2')
+
+        self.evaluate_gradient(m+dm, path1)
+        self.evaluate_gradient(m-dm, path2)
+
+        path1 = join(PATH.GLOBAL, 'eval1', 'gradient')
+        path2 = join(PATH.GLOBAL, 'eval2', 'gradient')
+
+        grad1 = solver.merge(solver.load(path1, suffix='_kernel'))
+        grad2 = solver.merge(solver.load(path2, suffix='_kernel'))
+ 
+        filename = join(PATH.OUTPUT, 'action_hessian')
+        solver.save(filename, solver.split(grad1-grad2))
 
 
     def setup(self):
@@ -83,6 +95,7 @@ class compute_sensitivity(object):
     def evaluate_gradient(self, model, path):
         """ Performs forward simulation to evaluate objective function
         """
+        unix.mkdir(path)
         solver.save(join(path, 'model'), solver.split(model))
 
         system.run('solver', 'eval_func',

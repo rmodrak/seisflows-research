@@ -6,7 +6,7 @@ import scipy.optimize
 from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.array import grid2mesh, mesh2grid, stack
-from seisflows.tools.code import exists
+from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     loadclass, ParameterError
 
@@ -76,7 +76,7 @@ class compute_lambda(object):
 
         # write regularized gradient
         kk = 0
-        for lmbd in getlist(PAR.LAMBDA):
+        for lmbd in cast(PAR.LAMBDA):
             gs = deepcopy(g)
             kk += 1
             for key in solver.parameters:
@@ -107,13 +107,3 @@ class compute_lambda(object):
 
         return f/f0
 
-
-def getlist(var):
-    if isinstance(var, list):
-        return var
-
-    if isinstance(var, float):
-        return [var]
-
-    if isinstance(var, int):
-        return [var]

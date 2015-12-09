@@ -4,7 +4,7 @@ from glob import glob
 import numpy as np
 
 from seisflows.tools import unix
-from seisflows.tools.code import exists
+from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError
 
@@ -73,7 +73,7 @@ class compute_precond(object):
             path=path,
             parameters=solver.parameters)
 
-        for span in getlist(PAR.SMOOTH):
+        for span in cast(PAR.SMOOTH):
             self.process_kernels(
                 path=path,
                 parameters=solver.parameters,
@@ -163,16 +163,4 @@ class compute_precond(object):
         s = preprocess.apply(adjoint.precond2, [s, d], [h])
 
         preprocess.save(s, h, prefix='traces/adj/')
-
-
-def getlist(var):
-    if isinstance(var, list):
-        return var
-
-    if isinstance(var, float):
-        return [var]
-
-    if isinstance(var, int):
-        return [var]
-
 
