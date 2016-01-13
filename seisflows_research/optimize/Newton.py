@@ -14,7 +14,6 @@ PATH = SeisflowsPaths()
 
 ### utility functions
 
-_eps = 1.e-3
 
 def _norm(v):
     return max(abs(v))
@@ -28,10 +27,11 @@ class Newton(loadclass('optimize', 'base')):
     def check(cls):
         """ Checks parameters and paths
         """
-        super(Newton, cls).check()
-
         if 'SCHEME' not in  PAR:
             setattr(PAR, 'SCHEME', 'Newton')
+
+        if 'LINESEARCH' not in PAR:
+            setattr(PAR, 'LINESEARCH', 'Backtrack')
 
         if 'LCGPRECOND' not in PAR:
             setattr(PAR, 'LCGPRECOND', None)
@@ -44,6 +44,11 @@ class Newton(loadclass('optimize', 'base')):
 
         if 'LCGTHRESH' not in PAR:
             setattr(PAR, 'LCGTHRESH', np.inf)
+
+        if 'EPSILON' not in PAR:
+            setattr(PAR, 'EPSILON', 1.)
+
+        super(Newton, cls).check()
 
 
     def setup(cls):
@@ -69,7 +74,13 @@ class Newton(loadclass('optimize', 'base')):
         cls.LCG.initialize()
 
         v = loadnpy('LCG/p')
-        h = _eps / _norm(v)
+        h = PAR.EPSILON / _norm(v)
+
+        print ' v:', min(v), max(v)
+        print ' h:', h
+
+        print ' m1:', min(m), max(m)
+        print ' m2:', min(m+h*v), max(m+h*v)
 
         savenpy('m_lcg', m + h*v)
 
@@ -83,7 +94,7 @@ class Newton(loadclass('optimize', 'base')):
         g = loadnpy('g_new')
 
         v = loadnpy('LCG/p')
-        h = _eps / _norm(v)
+        h = PAR.EPSILON / _norm(v)
 
         u = cls.hessian_product(g, h)
 
@@ -116,4 +127,31 @@ class Newton(loadclass('optimize', 'base')):
         return 1.
 
 
+    def restart(cls):
+        """ Discards history of algorithm; prepares to start again from 
+          gradient direction
+        """
+        unix.cd(PATH.OPTIMIZE)
+
+        g = cls.load('g_new')
+
+        cls.save('p_new', -g)
+        savetxt('s_new', cls.dot(g,g))
+
+        if 'LBFGS' in PAR.LCGPRECOND:
+            cls.LCG.LBFGS.restart()
+
+        cls.restarted = True
+
+        cls.stepwriter.iter -= 1
+        cls.stepwriter.newline()
+
+
+    def finalize_search(cls):
+        super(Newton, cls).finalize_search()
+
+        cls.restarted = False
+
+
     restarted = False
+

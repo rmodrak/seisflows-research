@@ -19,25 +19,18 @@ class GaussNewton(loadclass('optimize', 'Newton')):
     def check(cls):
         """ Checks parameters and paths
         """
-        super(GaussNewton, cls).check()
-
         if 'SCHEME' not in  PAR:
             setattr(PAR, 'SCHEME', 'GaussNewton')
 
-        if 'LCGMAX' not in PAR:
-            setattr(PAR, 'LCGMAX', 2)
-
-        if 'LCGTHRESH' not in PAR:
-            setattr(PAR, 'LCGTHRESH', np.inf)
-
-        if 'LCGPRECOND' not in PAR:
-            setattr(PAR, 'LCGPRECOND', 0)
+        super(GaussNewton, cls).check()
 
 
     def hessian_product(cls, g, h):
         unix.cd(PATH.OPTIMIZE)
 
         dg = loadnpy('g_lcg')
-        return h**-1 * dg
 
+        print 'minmax dg:', min(dg), max(dg)
+
+        return h**-1 * dg
 
