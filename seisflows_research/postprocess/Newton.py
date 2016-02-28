@@ -13,7 +13,7 @@ import solver
 import system
 
 
-class Newton(loadclass('postprocess', 'base')):
+class base(loadclass('postprocess', 'base')):
 
     def check(self):
         super(Newton, self).check()
@@ -60,3 +60,4 @@ class Newton(loadclass('postprocess', 'base')):
         savenpy(PATH.OPTIMIZE +'/'+ 'g_lcg', g)
 
 
+Newton = base

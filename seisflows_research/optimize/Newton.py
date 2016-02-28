@@ -73,14 +73,10 @@ class Newton(loadclass('optimize', 'base')):
 
         cls.LCG.initialize()
 
+        cls.restarted = False
+
         v = loadnpy('LCG/p')
         h = PAR.EPSILON / _norm(v)
-
-        print ' v:', min(v), max(v)
-        print ' h:', h
-
-        print ' m1:', min(m), max(m)
-        print ' m2:', min(m+h*v), max(m+h*v)
 
         savenpy('m_lcg', m + h*v)
 
@@ -111,6 +107,7 @@ class Newton(loadclass('optimize', 'base')):
             print ' Newton direction rejected [not a descent direction]'
             w = -g
             s = 1.
+            cls.restarted = True
 
         savenpy('p_new', w)
         savetxt('s_new', s)
@@ -146,12 +143,4 @@ class Newton(loadclass('optimize', 'base')):
         cls.stepwriter.iter -= 1
         cls.stepwriter.newline()
 
-
-    def finalize_search(cls):
-        super(Newton, cls).finalize_search()
-
-        cls.restarted = False
-
-
-    restarted = False
 

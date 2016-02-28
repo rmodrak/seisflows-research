@@ -23,7 +23,10 @@ class Newton(loadclass('workflow', 'inversion')):
 
     def check(self):
         super(Newton, self).check()
+        self.check_objects()
 
+
+    def check_objects(self):
         if PAR.OPTIMIZE != 'Newton':
             raise Exception
 

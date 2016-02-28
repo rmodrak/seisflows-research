@@ -13,7 +13,7 @@ import solver
 import system
 
 
-class GaussNewton(loadclass('postprocess', 'tikhonov1')):
+class base(loadclass('postprocess', 'base')):
 
     def check(self):
         super(GaussNewton, self).check()
@@ -60,4 +60,6 @@ class GaussNewton(loadclass('postprocess', 'tikhonov1')):
         solver.save(PATH.HESS +'/'+ 'gauss_newton_lcg', solver.split(g))
         savenpy(PATH.OPTIMIZE +'/'+ 'g_lcg', g)
 
+
+GaussNewton = base
 
