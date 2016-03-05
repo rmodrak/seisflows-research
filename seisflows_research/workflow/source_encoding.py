@@ -211,3 +211,15 @@ class source_encoding(base):
     def headers(self, tag='obs'):
         obj = globals()[tag]
         return [obj.h[key] for key in obj.keys]
+
+
+
+def cdiff_adjoint(wsyn, wobs, nt, dt):
+    # cross correlation difference
+    cdiff = _np.correlate(wobs,wsyn) - _np.correlate(wobs,wobs)
+    wadj = _np.convolve(wobs,cdiff)
+    return 1e-10 * wadj
+
+def cdiff_misfit(wsyn, wobs, nt, dt):
+    cdiff = np.correlate(wobs, wsyn) - np.correlate(wobs, wobs)
+    return np.sqrt(np.sum(cdiff*cdiff*dt))
