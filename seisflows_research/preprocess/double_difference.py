@@ -14,7 +14,7 @@ import system
 import solver
 
 
-class double_difference(loadclass('preprocess', 'default')):
+class double_difference(loadclass('preprocess', 'legacy')):
     """ Data preprocessing class
     """
 
