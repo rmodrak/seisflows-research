@@ -2,7 +2,7 @@
 import numpy as np
 
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 from seisflows.tools import unix
 from seisflows.seistools import wavelets
@@ -16,7 +16,7 @@ import solver
 import preprocess
 
 
-class convolve_data(loadclass('workflow', 'test_forward')):
+class convolve_data(custom_import('workflow', 'test_forward')):
     """ Computes Green's functions, then convolves them with source time
       function after the fact
     """

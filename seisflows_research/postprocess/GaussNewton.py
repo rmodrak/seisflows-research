@@ -4,7 +4,7 @@ from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -13,7 +13,7 @@ import solver
 import system
 
 
-class base(loadclass('postprocess', 'base')):
+class base(custom_import('postprocess', 'base')):
 
     def check(self):
         super(GaussNewton, self).check()

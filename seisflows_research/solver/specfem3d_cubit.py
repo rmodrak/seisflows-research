@@ -12,7 +12,7 @@ from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -21,7 +21,7 @@ import system
 import preprocess
 
 
-class specfem3d_cubit(loadclass('solver', 'specfem3d')):
+class specfem3d_cubit(custom_import('solver', 'specfem3d')):
     """ For SPECFEM3D simulations with CUBIT models
     """
 

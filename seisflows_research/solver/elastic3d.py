@@ -1,7 +1,7 @@
 
-from seisflows.tools.config import loadclass
+from seisflows.tools.config import custom_import
 
-class elastic3d(loadclass('solver', 'elastic'), loadclass('solver', 'specfem3d')):
+class elastic3d(custom_import('solver', 'elastic'), custom_import('solver', 'specfem3d')):
     """ Adds elastic inversion machinery to SPECFEM2D
     """
     pass

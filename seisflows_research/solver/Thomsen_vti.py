@@ -1,8 +1,8 @@
 
-from seisflows.tools.config import loadclass
+from seisflows.tools.config import custom_import
 
 
-class Thomsen_vti(loadclass('solver', 'Thomsen_base')):
+class Thomsen_vti(custom_import('solver', 'Thomsen_base')):
 
     # model parameters included in inversion
     parameters = []

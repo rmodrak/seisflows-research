@@ -6,7 +6,7 @@ from seisflows.tools import unix
 
 from seisflows.seistools.io import copybin, savebin
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -14,7 +14,7 @@ PATH = SeisflowsPaths()
 import system
 
 
-class ChenTromp_base(loadclass('solver', 'specfem3d_legacy')):
+class ChenTromp_base(custom_import('solver', 'specfem3d_legacy')):
 
     # model parameters expected by solver
     solver_parameters = []

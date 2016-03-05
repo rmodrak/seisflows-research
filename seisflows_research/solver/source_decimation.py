@@ -7,7 +7,7 @@ import numpy as np
 from seisflows.tools import unix
 
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -15,7 +15,7 @@ PATH = SeisflowsPaths()
 import system
 
 
-class source_decimation(loadclass('solver', 'base')):
+class source_decimation(custom_import('solver', 'base')):
 
     def setup(self, subset=[]):
         for isrc in subset:

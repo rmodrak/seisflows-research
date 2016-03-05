@@ -4,7 +4,7 @@ from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import loadtxt, savetxt
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 from seisflows.optimize.lib.PLCG import PLCG
 
@@ -20,7 +20,7 @@ def _norm(v):
 
 
 
-class Newton(loadclass('optimize', 'base')):
+class Newton(custom_import('optimize', 'base')):
     """ Adds Newton-CG algorithm to nonlinear optimization base class
     """
 

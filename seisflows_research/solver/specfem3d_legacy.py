@@ -5,7 +5,7 @@ import subprocess
 
 from seisflows.tools import unix
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -14,7 +14,7 @@ import system
 import preprocess
 
 
-class specfem3d_legacy(loadclass('solver', 'specfem3d')):
+class specfem3d_legacy(custom_import('solver', 'specfem3d')):
 
     def mpirun(self, runfile, args='', outfile='/dev/null'):
         """ Wrapper for mpirun

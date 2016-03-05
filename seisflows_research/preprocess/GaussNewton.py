@@ -4,13 +4,13 @@ from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import loadtxt, savetxt
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
 
-class GaussNewton(loadclass('preprocess', 'base')):
+class GaussNewton(custom_import('preprocess', 'base')):
 
     def prepare_apply_hess(self, path='.'):
         """ Prepares solver to compute action of Hessian

@@ -1,7 +1,7 @@
 
-from seisflows.tools.config import loadclass
+from seisflows.tools.config import custom_import
 
-class ChenTromp_hti(loadclass('solver', 'ChenTromp_base')):
+class ChenTromp_hti(custom_import('solver', 'ChenTromp_base')):
 
     # model parameters included in inversion
     parameters = []

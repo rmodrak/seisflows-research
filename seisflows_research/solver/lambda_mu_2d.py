@@ -6,7 +6,7 @@ from seisflows.seistools.io import loadbypar
 from seisflows.tools import unix
 from seisflows.tools.code import Struct, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -33,7 +33,7 @@ def map(model, kernels):
 
 
 
-class lambda_mu_2d(loadclass('solver', 'elastic2d')):
+class lambda_mu_2d(custom_import('solver', 'elastic2d')):
     """ Adds Lame parameter machinery to SPECFEM2D
     """
     assert PAR.MATERIALS == 'lambda_mu'

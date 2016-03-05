@@ -6,7 +6,7 @@ from seisflows.tools import unix
 
 from seisflows.seistools.io import copybin, savebin
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -14,7 +14,7 @@ PATH = SeisflowsPaths()
 import system
 
 
-class Thomsen_base(loadclass('solver', 'specfem3d_legacy')):
+class Thomsen_base(custom_import('solver', 'specfem3d_legacy')):
 
     #raise NotImplementedError("Need to fix xsum_kernels utility".)
 

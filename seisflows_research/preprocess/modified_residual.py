@@ -4,7 +4,7 @@ import numpy as np
 from seisflows.tools import unix
 from seisflows.tools.code import Struct, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 from seisflows.seistools import adjoint, misfit, sbandpass, smute, readers, writers
 
@@ -12,7 +12,7 @@ PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
 
-class modified_residual(loadclass('preprocess', 'base')):
+class modified_residual(custom_import('preprocess', 'base')):
     """ Data preprocessing class
     """
 

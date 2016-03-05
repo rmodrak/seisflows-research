@@ -4,7 +4,7 @@ import numpy as np
 from seisflows.tools import unix
 from seisflows.tools.code import exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 from seisflows.seistools.shared import SeisStruct
 import seisflows.seistools.specfem2d as solvertools
@@ -16,7 +16,7 @@ import system
 import preprocess
 
 
-class source_encoding_2d(loadclass('solver', 'specfem2d_legacy')):
+class source_encoding_2d(custom_import('solver', 'specfem2d_legacy')):
     def check(self):
         """ Checks parameters, paths, and dependencies
         """

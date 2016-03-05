@@ -8,7 +8,7 @@ from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.array import grid2mesh, mesh2grid, stack
 from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    loadclass, ParameterError
+    custom_import, ParameterError
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -16,7 +16,7 @@ PATH = SeisflowsPaths()
 import solver
 import postprocess
 
-migration = loadclass('workflow','migration')()
+migration = custom_import('workflow','migration')()
 
 
 class compute_lambda(object):

@@ -5,7 +5,7 @@ from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import divides, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
@@ -17,7 +17,7 @@ import preprocess
 import postprocess
 
 
-class GaussNewton(loadclass('workflow', 'Newton')):
+class GaussNewton(custom_import('workflow', 'Newton')):
     """ Inversion with truncated Gauss Newton model updates
     """
 

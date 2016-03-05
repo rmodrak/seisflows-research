@@ -7,7 +7,7 @@ from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import exists, loadtxt, savetxt
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 from seisflows.tools.math import angle, polyfit2, backtrack2
 from seisflows.optimize.lib.LBFGS import LBFGS
@@ -21,7 +21,7 @@ PATH = SeisflowsPaths()
 import solver
 
 
-class project(loadclass('optimize', 'base')):
+class project(custom_import('optimize', 'base')):
 
     def setup(self):
         """ Sets up nonlinear optimization machinery

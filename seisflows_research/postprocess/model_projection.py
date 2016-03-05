@@ -8,7 +8,7 @@ from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.array import grid2mesh, mesh2grid, stack
 from seisflows.tools.code import exists, Struct
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 from seisflows.tools.math import gauss2
 
 PAR = SeisflowsParameters()
@@ -18,7 +18,7 @@ import system
 import solver
 
 
-class model_projection(loadclass('postprocess', 'base')):
+class model_projection(custom_import('postprocess', 'base')):
     """ Projects from GLL mesh to Gaussian function basis
 
         SO FAR, CAN ONLY BE USED FOR ACOUSTIC 2D WAVEFORM INVERSION.

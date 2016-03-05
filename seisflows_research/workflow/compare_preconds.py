@@ -6,7 +6,7 @@ import numpy as np
 from seisflows.tools import unix
 from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, loadclass
+    ParameterError, custom_import
 
 from seisflows.seistools import adjoint
 from seisflows.seistools.io import loadbypar, loadbin, savebin
@@ -20,11 +20,11 @@ import solver
 import preprocess
 import postprocess
 
-migration = loadclass('workflow','migration')()
+migration = custom_import('workflow','migration')()
 
 
 
-class compare_preconds(loadclass('workflow', 'compute_precond')):
+class compare_preconds(custom_import('workflow', 'compute_precond')):
 
     def check(self):
         """ Checks parameters and paths
