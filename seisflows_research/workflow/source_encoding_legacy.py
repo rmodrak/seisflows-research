@@ -15,7 +15,6 @@ import solver
 import optimize
 import preprocess
 
-
 class source_encoding(custom_import('workflow', 'inversion')):
     """ Source encoding subclass
     """
@@ -45,24 +44,32 @@ class source_encoding(custom_import('workflow', 'inversion')):
         """ Lays groundwork for inversion
         """
         super(source_encoding, self).setup()
-        self.prepare_data()
+        self.multiload(path=PATH.DATA, tag='obs')
 
 
     def initialize(self):
         """ Prepares for next model update iteration
         """
-        stats = {}
-        stats['ws'] = self.prepare_sources()
-        stats['wr'] = self.prepare_receivers()
+        # collect headers
+        sinfo = self.prepare_sources()
+        rinfo = self.prepare_receivers()
 
-        # combine observations into 'supergather'
-        self.combine(stats, tag='obs')
+        h = self.headers()[0]
+        h.dt = PAR.DT
+        h.nt = PAR.NT_PADDED
+
+        zeros = np.zeros(h.nr)
+        h = Struct(h.items() +
+                   [['sx', zeros], ['sy', zeros], ['sz', zeros]])
+
+        # combine observations into single 'supergather'
+        self.combine(h, sinfo, rinfo, tag='obs')
 
         # update input files
         solver.write_receivers()
 
         solver.write_sources(
-            stats=stats,
+            sinfo=sinfo,
             mapping=lambda _: range(PAR.NSRC))
 
         # generate synthetics
@@ -72,6 +79,8 @@ class source_encoding(custom_import('workflow', 'inversion')):
     def prepare_sources(self):
         """ Generates source encoding factors
         """
+        s = self.headers()
+
         if PAR.ENCODING == 0:
             ts = np.zeros(PAR.NSRC)
             fs = np.ones(PAR.NSRC)
@@ -98,11 +107,11 @@ class source_encoding(custom_import('workflow', 'inversion')):
             fs = np.ones(PAR.NSRC)
 
         # collect factors
-        stats = {}
         for i in range(PAR.NSRC):
             s[i].ts = ts[i]
             s[i].fs = fs[i]
-        return stats
+
+        return s
 
 
     def prepare_receivers(self):
@@ -125,55 +134,77 @@ class source_encoding(custom_import('workflow', 'inversion')):
         return r
 
 
-    def combine(self, stats, tag='obs'):
-        """ Combines multiple sources into "supergather"
+    ### data processing utilities
+
+    def combine(self, h, sinfo, rinfo, tag='obs', inplace=0):
+        """ Combines multiple source gathers into a single supergather
         """
-        data = self.prepare_data(tag)
+        self.multiload(PATH.DATA, tag)
+        obj = globals()[tag]
+        sum = Struct()
 
-        for filename in self.filenames:
-            summed = Stream()
+        # allocate arrays
+        for channel in preprocess.channels:
+            sum[channel] = np.zeros((h.nt, h.nr))
 
-            for dirname in self.dirnames:
-                stream = copy(data[dirname][filename])
+        # combine gathers
+        for i, key in enumerate(obj.keys):
+            sum = preprocess.apply(
+                self.combine_traces, [sum, obj.d[key]], [sinfo[i], rinfo[i]])
 
-                # calculate time offset
-                imin = int(stats.ts/PAR.DT)
-                imax = imin + PAR.NT
-
-                for ir in range(PAR.NREC):
-                    # apply weights
-                    stream[ir] *= sinfo[ir]
-                    stream[ir] *= rinfo[ir]
-
-                    summed[ir].data[imin:imax] += stream[ir].data[imin:imax]
-
-            # save results
-            preprocess.writer('', filename, summed)
+        # save results
+        preprocess.save(
+            sum, h, prefix=PATH.SOLVER +'/'+ '000000/traces/' + tag, suffix='.su')
 
 
-    def prepare_data(self, tag='obs'):
-        """ Loads from multiple sources into memory
+    def combine_traces(self, sum, d, sinfo, rinfo):
+        """ Applies source encoding factors to one source gather and adds it to
+            another source gather
         """
-        # check if data already in memory
+        if PAR.FAILRATE > 0:
+            # apply "receiver factors"
+            for j in range(PAR.NREC):
+                d[:, j] = rinfo[j]*d[:, j]
+
+        # apply "source factors"
+        imin = int(sinfo.ts/PAR.DT)
+        imax = imin + PAR.NT
+        sum[imin:imax, :] = sum[imin:imax, :] + sinfo.fs*d[:, :]
+
+        return sum
+
+
+    def multiload(self, path='', tag='obs', inplace=0, debug=0):
+        """ Loads data from multiple sources and keeps it in memory
+        """
         if tag in globals():
-            return globals()[tag]
+            if inplace:
+                pass
+            else:
+                return
+        else:
+            obj = Struct()
+            obj.d = {}
+            obj.h = {}
+            obj.keys = []
 
-        for dirname in self.dirnames:
-            fullpath = PATH.DATA +'/'+ ''
-            for filename in self.filenames:
-                data[dirname][filename] = preprocess.reader(fullpath, filename)
-        globals()[tag] = data
+        # generate keys
+        keys = unix.ls(path)
+        keys.sort()
+        obj.keys = keys[0:PAR.NSRC]
 
-        return data
+        # load data
+        for key in obj.keys:
+            obj.d[key], obj.h[key] = preprocess.load(path + '/' + key)
+            if debug:
+                print key
+
+        globals()[tag] = obj
 
 
-    @property
-    def dirnames(self):
-        return solver.check_source_names[0:PAR.NSRC]
-
-    @property
-    def filenames(self):
-        return solver.data_filenames
+    def headers(self, tag='obs'):
+        obj = globals()[tag]
+        return [obj.h[key] for key in obj.keys]
 
 
 
@@ -183,9 +214,6 @@ def cdiff_adjoint(wsyn, wobs, nt, dt):
     wadj = _np.convolve(wobs,cdiff)
     return 1e-10 * wadj
 
-
 def cdiff_misfit(wsyn, wobs, nt, dt):
     cdiff = np.correlate(wobs, wsyn) - np.correlate(wobs, wobs)
     return np.sqrt(np.sum(cdiff*cdiff*dt))
-
-
