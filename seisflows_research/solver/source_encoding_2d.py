@@ -16,7 +16,7 @@ import system
 import preprocess
 
 
-class source_encoding_2d(custom_import('solver', 'specfem2d_legacy')):
+class source_encoding_2d(custom_import('solver', 'specfem2d')):
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
@@ -57,9 +57,9 @@ class source_encoding_2d(custom_import('solver', 'specfem2d_legacy')):
         with open('DATA/SOURCE', 'w') as f:
             f.writelines(lines)
 
-    def initialize_adjoint_traces(self):
-        zeros = np.zeros((PAR.NT_PADDED, PAR.NREC))
-        h = SeisStruct(PAR.NREC, PAR.NT_PADDED, PAR.DT)
-        for channel in ['x', 'y', 'z']:
-            preprocess.writer(zeros, h, channel=channel, prefix='traces/adj')
+#    def initialize_adjoint_traces(self):
+#        zeros = np.zeros((PAR.NT_PADDED, PAR.NREC))
+#        h = SeisStruct(PAR.NREC, PAR.NT_PADDED, PAR.DT)
+#        for channel in ['x', 'y', 'z']:
+#            preprocess.writer(zeros, h, channel=channel, prefix='traces/adj')
 

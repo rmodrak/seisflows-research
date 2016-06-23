@@ -15,9 +15,7 @@ import solver
 import optimize
 import preprocess
 
-from seisflows.workflow.inversion import base
-
-class source_encoding(base):
+class source_encoding(custom_import('workflow', 'inversion')):
     """ Source encoding subclass
     """
     def check(self):
@@ -40,10 +38,6 @@ class source_encoding(base):
                 PAR.NT_PADDED = PAR.NT + (PAR.NSRC-1)*PAR.SHIFT
             else:
                 PAR.NT_PADDED = PAR.NT
-
-        # assertions
-        assert ('SourceEncoding' in PAR.SOLVER)
-        assert (PAR.PREPROCESS in ['base'])
 
 
     def setup(self):
