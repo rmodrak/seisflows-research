@@ -34,15 +34,15 @@ class source_encoding_2d(custom_import('solver', 'specfem2d')):
         solvertools.setpar('nt', PAR.NT_PADDED)
 
 
-    def write_receivers(self):
+    def write_receivers(self, coords):
         """ Writes receivers file
         """
-        unix.cd(self.getpath)
+        solvertools.write_receivers(
+            coords,
+            self.getpath)
 
-        _, hdr = preprocess.load('traces/obs')
-        solvertools.write_receivers(hdr)
 
-    def write_sources(self, sinfo=[], mapping=lambda i: [i]):
+    def write_sources(self, coords, stats=[], mapping=lambda i: [i]):
         """ Writes sources file
         """
         unix.cd(self.getpath)
@@ -50,16 +50,15 @@ class source_encoding_2d(custom_import('solver', 'specfem2d')):
         nodes = mapping(system.getnode())
         lines = []
         for i in nodes:
-            solvertools.write_sources(vars(PAR), sinfo[i])
+            solvertools.write_sources(
+                [coords[0][i], coords[1][i], coords[2][i]],
+                self.getpath,
+                stats['ws'][i])
+
             with open('DATA/SOURCE', 'r') as f:
                 lines.extend(f.readlines())
 
         with open('DATA/SOURCE', 'w') as f:
             f.writelines(lines)
 
-#    def initialize_adjoint_traces(self):
-#        zeros = np.zeros((PAR.NT_PADDED, PAR.NREC))
-#        h = SeisStruct(PAR.NREC, PAR.NT_PADDED, PAR.DT)
-#        for channel in ['x', 'y', 'z']:
-#            preprocess.writer(zeros, h, channel=channel, prefix='traces/adj')
 

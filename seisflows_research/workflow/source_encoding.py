@@ -1,4 +1,11 @@
+
+from glob import glob
+from os.path import basename
+
+import copy
 import random
+
+from obspy.core import Stream, Trace
 
 import numpy as np
 
@@ -51,21 +58,26 @@ class source_encoding(custom_import('workflow', 'inversion')):
     def initialize(self):
         """ Prepares for next model update iteration
         """
+        ws, ts = self.prepare_sources()
+        wr = self.prepare_receivers()
+
         stats = {}
-        stats['ws'] = self.prepare_sources()
-        stats['wr'] = self.prepare_receivers()
+        stats['wr'] = wr
+        stats['ws'] = ws
+        stats['ts'] = ts
 
         # combine observations into 'supergather'
         self.combine(stats, tag='obs')
 
-        # update input files
-        solver.write_receivers()
-
+        # update sources and receivers
         solver.write_sources(
+            self.get_source_coords(),
             stats=stats,
             mapping=lambda _: range(PAR.NSRC))
 
-        # generate synthetics
+        solver.write_receivers(
+            self.get_receiver_coords())
+
         super(source_encoding, self).initialize()
 
 
@@ -98,11 +110,7 @@ class source_encoding(custom_import('workflow', 'inversion')):
             fs = np.ones(PAR.NSRC)
 
         # collect factors
-        stats = {}
-        for i in range(PAR.NSRC):
-            s[i].ts = ts[i]
-            s[i].fs = fs[i]
-        return stats
+        return fs, ts
 
 
     def prepare_receivers(self):
@@ -115,61 +123,95 @@ class source_encoding(custom_import('workflow', 'inversion')):
             else:
                 rs = np.random.rand(PAR.NREC, PAR.NSRC)
                 rs = (rs > PAR.FAILRATE).astype(int)
-            np.savetxt(PATH.GLOBAL + '/' + 'rs', rs, '%3d')
+            np.savetxt(PATH.SCRATCH + '/' + 'rs', rs, '%3d')
 
-        # collect factors
-        r = []
-        rs = np.loadtxt(PATH.GLOBAL + '/' + 'rs')
-        for i in range(PAR.NSRC):
-            r.append(rs[:, i])
-        return r
+        return np.loadtxt(PATH.SCRATCH + '/' + 'rs')
 
 
     def combine(self, stats, tag='obs'):
-        """ Combines multiple sources into "supergather"
+        """ Combines data from multiple sources
         """
-        data = self.prepare_data(tag)
+        dirnames = self.dirnames
+        filenames = self.filenames
 
-        for filename in self.filenames:
-            summed = Stream()
+        nt = PAR.NT_PADDED
+        dt = PAR.DT
+        nr = PAR.NREC
 
-            for dirname in self.dirnames:
-                stream = copy(data[dirname][filename])
+        for ii, filename in enumerate(filenames):
+            # create object to hold summed data
+            data_sum = Stream()
+            for ir in range(nr):
+                data_sum.append(Trace(
+                    data=np.zeros(nt, dtype='float32'),
+                    header=globals()[tag][dirnames[0]][filename][ir].stats))
 
-                # calculate time offset
-                imin = int(stats.ts/PAR.DT)
-                imax = imin + PAR.NT
+            # linear combination over sources
+            for jj, dirname in enumerate(dirnames):
+                data = self.copy_data(dirname, filename)
+                imin = int(stats['ts'][jj]/dt)
+                imax = imin + nt
+                for ir in range(nr):
+                    data[ir].data *= stats['wr'][ir,jj]
+                    data[ir].data *= stats['ws'][jj]
+                    data_sum[ir].data[imin:imax] += data[ir].data[imin:imax]
 
-                for ir in range(PAR.NREC):
-                    # apply weights
-                    stream[ir] *= sinfo[ir]
-                    stream[ir] *= rinfo[ir]
+            # save to disk
+            fullname = solver.getpath +'/'+ 'traces/' + tag
+            preprocess.writer(data_sum, fullname, filename)
 
-                    summed[ir].data[imin:imax] += stream[ir].data[imin:imax]
 
-            # save results
-            preprocess.writer('', filename, summed)
+    def copy_data(self, filename, dirname, tag='obs'):
+        if tag not in globals():
+            self.prepare_data(tag)
+
+        return copy.deepcopy(
+            globals()[tag][filename][dirname])
 
 
     def prepare_data(self, tag='obs'):
-        """ Loads from multiple sources into memory
+        """ Loads data into memory
         """
-        # check if data already in memory
-        if tag in globals():
-            return globals()[tag]
-
+        data = {}
         for dirname in self.dirnames:
-            fullpath = PATH.DATA +'/'+ ''
+            data[dirname] = {}
+            fullpath = PATH.DATA +'/'+ dirname
             for filename in self.filenames:
                 data[dirname][filename] = preprocess.reader(fullpath, filename)
         globals()[tag] = data
 
-        return data
+
+    def get_source_coords(self):
+        sx = []
+        sy = []
+        sz = []
+        for ii in range(PAR.NSRC):
+            coords = preprocess.get_source_coords(
+                globals()['obs'][self.dirnames[ii]][self.filenames[0]])
+            sx += [coords[0][0]]
+            sy += [coords[1][0]]
+            sz += [coords[2][0]]
+        return sx, sy, sz
+
+
+    def get_receiver_coords(self):
+        return preprocess.get_receiver_coords(
+            globals()['obs'][self.dirnames[0]][self.filenames[0]])
 
 
     @property
     def dirnames(self):
-        return solver.check_source_names[0:PAR.NSRC]
+            path = PATH.SPECFEM_DATA
+            wildcard = solver.source_prefix+'_*'
+            globstar = sorted(glob(path +'/'+ wildcard))
+            if not globstar:
+                 print msg.SourceError_SPECFEM % (path, wildcard)
+                 sys.exit(-1)
+            names = []
+            for path in globstar:
+                names += [basename(path).split('_')[-1]]
+            return names
+
 
     @property
     def filenames(self):
@@ -187,5 +229,4 @@ def cdiff_adjoint(wsyn, wobs, nt, dt):
 def cdiff_misfit(wsyn, wobs, nt, dt):
     cdiff = np.correlate(wobs, wsyn) - np.correlate(wobs, wobs)
     return np.sqrt(np.sum(cdiff*cdiff*dt))
-
 
