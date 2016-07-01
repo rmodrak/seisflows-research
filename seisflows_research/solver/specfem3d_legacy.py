@@ -1,6 +1,6 @@
 
 from glob import glob
-from os.path import join
+from os.path import basename, join
 import subprocess
 
 from seisflows.tools import unix
@@ -24,7 +24,7 @@ class specfem3d_legacy(custom_import('solver', 'specfem3d')):
         with open(outfile) as f:
             subprocess.call(
                 system.mpiargs() +
-                unix.basename(runfile) +
+                basename(runfile) +
                 args,
                 shell=True,
                 stdout=f)

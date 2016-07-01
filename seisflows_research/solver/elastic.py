@@ -1,8 +1,9 @@
 
 from os.path import join
 
-from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec, Minmax
-from seisflows.seistools.io import Model as IOStruct
+from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec
+from seisflows.seistools.shared import Minmax
+from seisflows.seistools.shared import Model as IOStruct
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
@@ -76,7 +77,7 @@ class elastic(object):
             kernels = IOStruct(self.kernel_parameters)
 
             minmax = Minmax(self.kernel_parameters)
-            for iproc in range(self.mesh.nproc):
+            for iproc in range(self.mesh_properties.nproc):
                 # read database files
                 keys, vals = loadbypar(path, self.kernel_parameters, iproc, prefix, suffix)
                 minmax.update(keys, vals)
@@ -93,7 +94,7 @@ class elastic(object):
             model = IOStruct(self.kernel_parameters)
 
             minmax = Minmax(self.model_parameters)
-            for iproc in range(self.mesh.nproc):
+            for iproc in range(self.mesh_properties.nproc):
                 # read database files
                 keys, vals = loadbypar(path, self.model_parameters, iproc, prefix, suffix)
                 minmax.update(keys, vals)
@@ -124,7 +125,7 @@ class elastic(object):
         if 'kernel' in suffix:
             kernels = obj
             # write kernels
-            for iproc in range(self.mesh.nproc):
+            for iproc in range(self.mesh_properties.nproc):
                 keys = kernels.keys()
                 vals = []
                 for key in keys:
@@ -137,7 +138,7 @@ class elastic(object):
         else:
             # write model
             model = obj
-            for iproc in range(self.mesh.nproc):
+            for iproc in range(self.mesh_properties.nproc):
                 keys = model.keys()
                 vals = []
                 for key in keys:

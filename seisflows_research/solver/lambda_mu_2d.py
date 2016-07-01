@@ -39,7 +39,7 @@ class lambda_mu_2d(custom_import('solver', 'elastic2d')):
     assert PAR.MATERIALS == 'lambda_mu'
 
     def export_kernels(self, path):
-        assert self.mesh.nproc == 1
+        assert self.mesh_properties.nproc == 1
         iproc = 0
 
         path = join(path, 'kernels')
