@@ -1,7 +1,7 @@
 
 from os.path import join
 
-from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec
+from seisflows.seistools.io import sem
 from seisflows.seistools.shared import Minmax
 from seisflows.seistools.shared import Model as IOStruct
 
@@ -79,7 +79,7 @@ class elastic(object):
             minmax = Minmax(self.kernel_parameters)
             for iproc in range(self.mesh_properties.nproc):
                 # read database files
-                keys, vals = loadbypar(path, self.kernel_parameters, iproc, prefix, suffix)
+                keys, vals = sem.mread(path, self.kernel_parameters, iproc, prefix, suffix)
                 minmax.update(keys, vals)
 
                 # store kernels
@@ -96,11 +96,11 @@ class elastic(object):
             minmax = Minmax(self.model_parameters)
             for iproc in range(self.mesh_properties.nproc):
                 # read database files
-                keys, vals = loadbypar(path, self.model_parameters, iproc, prefix, suffix)
+                keys, vals = sem.mread(path, self.model_parameters, iproc, prefix, suffix)
                 minmax.update(keys, vals)
 
                 if 'rho' not in keys:
-                    key, val = loadbypar(path, ['rho'], iproc, prefix, suffix)
+                    key, val = sem.mread(path, ['rho'], iproc, prefix, suffix)
                     keys += key
                     vals += val
 
@@ -133,7 +133,7 @@ class elastic(object):
 
                 # write database files
                 for key, val in zip(keys, vals):
-                    savebin(val, path, iproc, prefix+key+suffix)
+                    sem.write(val, path, iproc, prefix+key+suffix)
 
         else:
             # write model
@@ -144,7 +144,7 @@ class elastic(object):
                 for key in keys:
                     vals += [model[key][iproc]]
                 if 'rho' not in keys:
-                    key, val = loadbypar(model_init, ['rho'], iproc, prefix, suffix)
+                    key, val = sem.mread(model_init, ['rho'], iproc, prefix, suffix)
                     keys += key
                     vals += val
 
@@ -154,15 +154,15 @@ class elastic(object):
                 # write database files
                 rho = mapped.pop('rho')
                 if PAR.DENSITY == 'Variable':
-                    savebin(rho, path, iproc, prefix+'rho'+suffix)
+                    sem.write(rho, path, iproc, prefix+'rho'+suffix)
                 elif PAR.DENSITY == 'Constant':
-                    savebin(rho, path, iproc, prefix+'rho'+suffix)
+                    sem.write(rho, path, iproc, prefix+'rho'+suffix)
                 else:
                     rho = self.density_scaling(mapped.keys(), mapped.values())
-                    savebin(rho, path, iproc, prefix+'rho'+suffix)
+                    sem.write(rho, path, iproc, prefix+'rho'+suffix)
 
                 for key, val in mapped.items():
-                    savebin(val, path, iproc, prefix+key+suffix)
+                    sem.write(val, path, iproc, prefix+key+suffix)
 
 
     def check_mesh_properties(self, path=None, parameters=None):
