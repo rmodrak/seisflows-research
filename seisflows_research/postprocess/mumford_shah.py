@@ -88,11 +88,12 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
 
         # writes damping term to disk
         with open('mumford_shah.log', 'w') as fileobj:
-            call(PATH.MUMFORD_SHAH_BIN+'/'+'psemimage ' +
+            call('srun -n 1 -N 1 ' +PATH.MUMFORD_SHAH_BIN+'/'+'psemimage ' +
                  PATH.MUMFORD_SHAH_CONFIG +
                  ' -ksp_type fgmres ' +
                  ' -pc_type asm ' +
                  ' -ksp_gmres_restart 300 ',
+                 shell=True,
                  stdout=fileobj)
 
         from seisflows.tools.array import meshsmooth, stack
@@ -140,8 +141,7 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
                    path=fullpath,
                    parameters=parameters)
 
-        system.run('postprocess', 'detect_edges',
-                   hosts='head')
+        self.detect_edges()
 
 
 
