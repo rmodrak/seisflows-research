@@ -10,6 +10,8 @@ from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 from seisflows.tools.math import nabla
 
+from seisflows.seistools.io import sem
+
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()
 
@@ -93,13 +95,30 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
                  ' -ksp_gmres_restart 300 ',
                  stdout=fileobj)
 
+        from seisflows.tools.array import meshsmooth, stack
+
+        coords = []
+        for key in ['x', 'z']:
+            coords += [sem.read(PATH.MODEL_INIT, key, 0)]
+        mesh = stack(*coords)
+        
+        for parameter in solver.parameters:
+            for suffix in ['_nu', '_dnu', '_dm']:
+                # backup original
+                kernel = sem.read(path_output, parameter+suffix, 0)
+                sem.write(kernel, path_output, parameter+suffix+'_nosmooth', 0)
+
+                # apply smoothing operator
+                kernel = meshsmooth(kernel, mesh, PAR.SMOOTH)
+                sem.write(kernel, path_output, parameter+suffix, 0)
+
 
     def get_damping_term(self, parameter, iproc):
         from seisflows.seistools.io.sem import _read_bin
 
         # reads damping term from disk
-        filename = '%s/proc%06d_%s.bin.dm' % \
-            (PATH.MUMFORD_SHAH_OUTPUT, iproc, parameter)
+        filename = '%s/proc%06d_%s.bin' % \
+            (PATH.MUMFORD_SHAH_OUTPUT, iproc, parameter+'_dm')
         return _read_bin(filename)
 
 
@@ -123,5 +142,6 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
 
         system.run('postprocess', 'detect_edges',
                    hosts='head')
+
 
 
