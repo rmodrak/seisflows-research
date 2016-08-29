@@ -133,7 +133,7 @@ class elastic(object):
 
                 # write database files
                 for key, val in zip(keys, vals):
-                    sem.write(val, path, iproc, prefix+key+suffix)
+                    sem.write(val, path, prefix+key+suffix, iproc)
 
         else:
             # write model
@@ -154,15 +154,15 @@ class elastic(object):
                 # write database files
                 rho = mapped.pop('rho')
                 if PAR.DENSITY == 'Variable':
-                    sem.write(rho, path, iproc, prefix+'rho'+suffix)
+                    sem.write(rho, path, prefix+'rho'+suffix, iproc)
                 elif PAR.DENSITY == 'Constant':
-                    sem.write(rho, path, iproc, prefix+'rho'+suffix)
+                    sem.write(rho, path, prefix+'rho'+suffix, iproc)
                 else:
                     rho = self.density_scaling(mapped.keys(), mapped.values())
-                    sem.write(rho, path, iproc, prefix+'rho'+suffix)
+                    sem.write(rho, path, prefix+'rho'+suffix, iproc)
 
                 for key, val in mapped.items():
-                    sem.write(val, path, iproc, prefix+key+suffix)
+                    sem.write(val, path, prefix+key+suffix, iproc)
 
 
     def check_mesh_properties(self, path=None, parameters=None):
