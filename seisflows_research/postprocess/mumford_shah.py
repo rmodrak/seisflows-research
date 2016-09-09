@@ -5,10 +5,11 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
+from seisflows.tools.array import  mesh2grid, grid2mesh, stack
 from seisflows.tools.code import call, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
-from seisflows.tools.math import nabla
+from seisflows.tools.math import grad, nabla, nabla2
 
 from seisflows.seistools.io import sem
 
@@ -37,6 +38,9 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
         if 'ETA' not in PAR:
             setattr(PAR, 'ETA', 0.)
 
+        if 'SMOOTH_EDGES' not in PAR:
+            setattr(PAR, 'SMOOTH_EDGES', 5.)
+
         # check paths
         if 'MUMFORD_SHAH_INPUT' not in PATH:
             raise ParameterError
@@ -64,7 +68,7 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
         for parameter in solver.parameters:
             for iproc in range(PAR.NPROC):
                 g[parameter][iproc] += PAR.GAMMA *\
-                    self.get_damping_term(parameter, iproc)
+                    sem.read(PATH.MUMFORD_SHAH_OUTPUT, parameter+'_dm', iproc)
 
         # save gradient
         self.save(path, solver.merge(g), backup='noregularize')
@@ -76,8 +80,6 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
 
 
     def detect_edges(self):
-        from seisflows.seistools.io.sem import _read_bin
-
         path_input = PATH.MUMFORD_SHAH_INPUT
         path_output = PATH.MUMFORD_SHAH_OUTPUT
         path_run = PATH.SUBMIT
@@ -96,6 +98,12 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
                  shell=True,
                  stdout=fileobj)
 
+        for parameter in solver.parameters:
+            self.apply_smoothing(parameter)
+            self.write_damping_term(parameter)
+
+
+    def apply_smoothing(self, parameter):
         from seisflows.tools.array import meshsmooth, stack
 
         coords = []
@@ -103,24 +111,41 @@ class mumford_shah(custom_import('postprocess', 'regularize')):
             coords += [sem.read(PATH.MODEL_INIT, key, 0)]
         mesh = stack(*coords)
         
-        for parameter in solver.parameters:
-            for suffix in ['_nu', '_dnu', '_dm']:
+        for suffix in ['_nu']:
+            path = PATH.MUMFORD_SHAH_OUTPUT
+
+            if PAR.SMOOTH_EDGES > 0.:
                 # backup original
-                kernel = sem.read(path_output, parameter+suffix, 0)
-                sem.write(kernel, path_output, parameter+suffix+'_nosmooth', 0)
+                kernel = sem.read(path, parameter+suffix, 0)
+                sem.write(kernel, path, parameter+suffix+'_nosmooth', 0)
 
                 # apply smoothing operator
-                kernel = meshsmooth(kernel, mesh, PAR.SMOOTH)
-                sem.write(kernel, path_output, parameter+suffix, 0)
+                kernel = meshsmooth(kernel, mesh, PAR.SMOOTH_EDGES)
+                sem.write(kernel, path, parameter+suffix, 0)
 
 
-    def get_damping_term(self, parameter, iproc):
-        from seisflows.seistools.io.sem import _read_bin
+    def write_damping_term(self, parameter):
+        path_coords = PATH.OUTPUT+'/'+'model_init'
+        path_input = PATH.GRAD+'/'+'model'
+        path_output = PATH.MUMFORD_SHAH_OUTPUT
+        path_run = PATH.SUBMIT
 
-        # reads damping term from disk
-        filename = '%s/proc%06d_%s.bin' % \
-            (PATH.MUMFORD_SHAH_OUTPUT, iproc, parameter+'_dm')
-        return _read_bin(filename)
+        x = sem.read(path_coords, 'x', 0)
+        z = sem.read(path_coords, 'z', 0)
+        mesh = stack(x,z)
+
+        m, grid = mesh2grid(sem.read(path_input, parameter, 0), mesh)
+        nu, _ = mesh2grid(sem.read(path_output, parameter+'_nu', 0), mesh)
+
+        grad_m = grad(m)
+        grad_nu = grad(nu)
+
+        V = -2.*(grad_m[0]*grad_nu[0] + grad_m[1]*grad_nu[1]) +\
+            -nu**2 * nabla2(m)
+
+        v = grid2mesh(V, grid, mesh)
+
+        sem.write(v, path_output, parameter+'_dm', 0)
 
 
     def process_kernels(self, path, parameters):
