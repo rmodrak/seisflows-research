@@ -1,5 +1,5 @@
 
-from seisflows.tools.config import custom_import
+from seisflows.config import custom_import
 
 
 class ChenTromp_tti(custom_import('solver', 'ChenTromp_base')):

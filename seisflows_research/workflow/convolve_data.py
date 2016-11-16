@@ -1,15 +1,15 @@
 
 import numpy as np
 
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+from seisflows.config import , \
     ParameterError, custom_import
 
 from seisflows.tools import unix
 from seisflows.plugins import wavelets
 from seisflows.plugins.signal import sbandpass, sconvolve
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 import system
 import solver

@@ -6,15 +6,15 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import cast, exists
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+from seisflows.config import , \
     ParameterError, custom_import
 
 from seisflows.plugins import adjoint
 from seisflows.plugins.io import loadbypar, loadbin, savebin
 
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 import system
 import solver

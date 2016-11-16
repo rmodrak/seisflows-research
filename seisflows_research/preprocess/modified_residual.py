@@ -3,13 +3,13 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import Struct, exists
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+from seisflows.config import , \
     ParameterError, custom_import
 
 from seisflows.plugins import adjoint, misfit, sbandpass, smute, readers, writers
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 
 class modified_residual(custom_import('preprocess', 'base')):

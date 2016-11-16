@@ -4,11 +4,11 @@ from os.path import basename, join
 import subprocess
 
 from seisflows.tools import unix
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+from seisflows.config import , \
     ParameterError, custom_import
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 import system
 import preprocess

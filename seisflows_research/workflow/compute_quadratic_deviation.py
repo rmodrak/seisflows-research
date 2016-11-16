@@ -7,13 +7,13 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import cast, exists
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+from seisflows.config import , \
     ParameterError
 
 from seisflows.plugins import adjoint
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 import system
 import solver

@@ -1,25 +1,26 @@
 
+import sys
+
 from os.path import join
 
 from seisflows.plugins.io import sem
-from seisflows.plugins.shared import Minmax
-from seisflows.plugins.shared import Model as IOStruct
+from seisflows.tools.shared import Minmax
+from seisflows.tools.shared import Model as IOStruct
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
-    ParameterError, custom_import
+from seisflows.config import ParameterError, custom_import
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 
 class elastic(object):
     """ Adds elastic inversion machinery
     """
     if PAR.MATERIALS == 'phi_beta':
-        from seisflows.plugins.maps import phi_beta_forward as map_forward
-        from seisflows.plugins.maps import phi_beta_inverse as map_inverse
+        from seisflows.plugins.materials import phi_beta_forward as map_forward
+        from seisflows.plugins.materials import phi_beta_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -28,8 +29,8 @@ class elastic(object):
         kernel_parameters += ['bulk_beta']
 
     elif PAR.MATERIALS == 'kappa_mu':
-        from seisflows.plugins.maps import kappa_mu_forward as map_forward
-        from seisflows.plugins.maps import kappa_mu_inverse as map_inverse
+        from seisflows.plugins.materials import kappa_mu_forward as map_forward
+        from seisflows.plugins.materials import kappa_mu_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -38,8 +39,8 @@ class elastic(object):
         kernel_parameters += ['mu']
 
     elif PAR.MATERIALS == 'lambda_mu':
-        from seisflows.plugins.maps import lambda_mu_forward as map_forward
-        from seisflows.plugins.maps import lambda_mu_inverse as map_inverse
+        from seisflows.plugins.materials import lambda_mu_forward as map_forward
+        from seisflows.plugins.materials import lambda_mu_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -48,8 +49,8 @@ class elastic(object):
         kernel_parameters += ['lame2']
 
     elif PAR.MATERIALS == 'alpha_beta':
-        from seisflows.plugins.maps import vp_vs_forward as map_forward
-        from seisflows.plugins.maps import vp_vs_inverse as map_inverse
+        from seisflows.plugins.materials import vp_vs_forward as map_forward
+        from seisflows.plugins.materials import vp_vs_inverse as map_inverse
         model_parameters = []
         model_parameters += ['vp']
         model_parameters += ['vs']
@@ -65,7 +66,7 @@ class elastic(object):
     elif PAR.DENSITY == 'Constant':
         density_scaling = None
     elif PAR.DENSITY == 'Gardner':
-        from seisflows.plugins.maps import rho_gardner as density_scaling
+        from seisflows.plugins.materials import rho_gardner as density_scaling
 
 
     def load(self, path, prefix='', suffix='', verbose=True):

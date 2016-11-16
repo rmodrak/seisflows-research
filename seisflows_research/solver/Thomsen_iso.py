@@ -1,5 +1,5 @@
 
-from seisflows.tools.config import custom_import
+from seisflows.config import custom_import
 
 
 class Thomsen_iso(custom_import('solver', 'Thomsen_base')):

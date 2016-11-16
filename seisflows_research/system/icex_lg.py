@@ -2,10 +2,10 @@
 from getpass import getuser
 from os.path import abspath, basename, join
 
-from seisflows.tools.config import ParameterError, SeisflowsParameters, SeisflowsPaths, custom_import
+from seisflows.config import ParameterError, , custom_import
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 
 class icex_lg(custom_import('system', 'lsf_lg')):

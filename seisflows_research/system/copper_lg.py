@@ -2,11 +2,11 @@
 from os.path import abspath, basename, join
 
 from seisflows.tools import unix
-from seisflows.tools.config import custom_import
-from seisflows.tools.config import ParameterError, SeisflowsParameters, SeisflowsPaths
+from seisflows.config import custom_import
+from seisflows.config import ParameterError, 
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 
 class copper_lg(custom_import('system', 'pbs_lg')):

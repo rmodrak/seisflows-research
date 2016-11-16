@@ -6,7 +6,7 @@ import numpy as np
 from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.code import exists, loadtxt, savetxt
-from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
+from seisflows.config import , \
     ParameterError, custom_import
 
 from seisflows.tools.math import angle, polyfit2, backtrack2
@@ -15,8 +15,8 @@ from seisflows.optimize.lib.NLCG import NLCG
 from seisflows.optimize.lib.io import Writer, StepWriter
 
 
-PAR = SeisflowsParameters()
-PATH = SeisflowsPaths()
+PAR = sys.modules['seisflows_parameters']
+PATH = sys.modules['seisflows_paths']
 
 import solver
 
