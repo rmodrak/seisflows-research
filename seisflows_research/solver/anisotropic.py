@@ -1,8 +1,8 @@
 
 from os.path import join
 
-from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec, Minmax
-from seisflows.seistools.io import Model as IOStruct
+from seisflows.plugins.io import copybin, loadbypar, savebin, splitvec, Minmax
+from seisflows.plugins.io import Model as IOStruct
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
@@ -30,8 +30,8 @@ class anisotropic(custom_import('solver', 'elastic')):
 
 
     if PAR.MATERIALS == 'ChenTromp2d':
-        from seisflows.seistools.maps import voigt_chentromp_2d as map_forward
-        from seisflows.seistools.maps import chentromp_voigt_2d as map_inverse
+        from seisflows.plugins.maps import voigt_chentromp_2d as map_forward
+        from seisflows.plugins.maps import chentromp_voigt_2d as map_inverse
         kernel_parameters = []
         kernel_parameters += ['A']
         kernel_parameters += ['C']
@@ -41,8 +41,8 @@ class anisotropic(custom_import('solver', 'elastic')):
 
 
     elif PAR.MATERIALS == 'Voigt2d':
-        from seisflows.seistools.maps import voigt_voigt_2d as map_forward
-        from seisflows.seistools.maps import voigt_voigt_2d as map_inverse
+        from seisflows.plugins.maps import voigt_voigt_2d as map_forward
+        from seisflows.plugins.maps import voigt_voigt_2d as map_inverse
         kernel_parameters = []
         kernel_parameters += ['c11']
         kernel_parameters += ['c13']
@@ -53,8 +53,8 @@ class anisotropic(custom_import('solver', 'elastic')):
 
 
     elif PAR.MATERIALS == 'Thomsen2d':
-        from seisflows.seistools.maps import voigt_thomsen_2d as map_forward
-        from seisflows.seistools.maps import thomsen_voigt_2d as map_inverse
+        from seisflows.plugins.maps import voigt_thomsen_2d as map_forward
+        from seisflows.plugins.maps import thomsen_voigt_2d as map_inverse
         kernel_parameters = []
         kernel_parameters += ['vp']
         kernel_parameters += ['vs']

@@ -6,8 +6,8 @@ from seisflows.tools.code import exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 
-from seisflows.seistools.shared import SeisStruct
-import seisflows.seistools.specfem2d as solvertools
+from seisflows.plugins.shared import SeisStruct
+import seisflows.plugins.specfem2d as solvertools
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()

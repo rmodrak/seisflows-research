@@ -5,8 +5,8 @@ from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 
 from seisflows.tools import unix
-from seisflows.seistools import wavelets
-from seisflows.seistools.signal import sbandpass, sconvolve
+from seisflows.plugins import wavelets
+from seisflows.plugins.signal import sbandpass, sconvolve
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()

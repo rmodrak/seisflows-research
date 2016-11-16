@@ -11,7 +11,7 @@ from seisflows.tools.array import loadnpy, savenpy
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError
 
-from seisflows.seistools.io import sem
+from seisflows.plugins.io import sem
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()

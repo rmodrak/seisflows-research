@@ -1,8 +1,8 @@
 
 from os.path import join
 
-from seisflows.seistools.io import copybin, loadbypar, savebin, splitvec, Minmax
-from seisflows.seistools.io import Model as IOStruct
+from seisflows.plugins.io import copybin, loadbypar, savebin, splitvec, Minmax
+from seisflows.plugins.io import Model as IOStruct
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists

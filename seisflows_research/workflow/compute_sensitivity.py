@@ -9,7 +9,7 @@ from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError
 
-from seisflows.seistools import adjoint
+from seisflows.plugins import adjoint
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()

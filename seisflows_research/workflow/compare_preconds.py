@@ -1,5 +1,6 @@
 
 from glob import glob
+from os.path import basename
 
 import numpy as np
 
@@ -8,8 +9,8 @@ from seisflows.tools.code import cast, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 
-from seisflows.seistools import adjoint
-from seisflows.seistools.io import loadbypar, loadbin, savebin
+from seisflows.plugins import adjoint
+from seisflows.plugins.io import loadbypar, loadbin, savebin
 
 
 PAR = SeisflowsParameters()
@@ -64,7 +65,7 @@ class compare_preconds(custom_import('workflow', 'compute_precond')):
             # save preconditioners
             names = glob(path +'/'+ 'precond')
             for src in names:
-                dst = (PATH.OUTPUT +'/'+ '%s_%04d') % (unix.basename(src), span)
+                dst = (PATH.OUTPUT +'/'+ '%s_%04d') % (basename(src), span)
                 unix.mv(src, dst)
 
         self.combine_kernels_hessian(path)
@@ -99,7 +100,7 @@ class compare_preconds(custom_import('workflow', 'compute_precond')):
             # save preconditioners
             names = glob(path +'/'+ 'hessian?')
             for src in names:
-                dst = (PATH.OUTPUT +'/'+ '%s_%04d') % (unix.basename(src), span)
+                dst = (PATH.OUTPUT +'/'+ '%s_%04d') % (basename(src), span)
                 unix.mv(src, dst)
 
 

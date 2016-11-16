@@ -5,8 +5,8 @@ from os.path import join
 
 import numpy as np
 
-import seisflows.seistools.specfem3d as solvertools
-from seisflows.seistools.shared import getpar, setpar
+import seisflows.plugins.specfem3d as solvertools
+from seisflows.plugins.shared import getpar, setpar
 
 from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy

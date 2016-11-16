@@ -146,7 +146,7 @@ class model_projection(custom_import('postprocess', 'base')):
             x = m['x'][0]
             z = m['z'][0]
         except:
-            from seisflows.seistools.io import loadbin
+            from seisflows.plugins.io import loadbin
             x = loadbin(model_path, 0, 'x')
             z = loadbin(model_path, 0, 'z')
         return x,z

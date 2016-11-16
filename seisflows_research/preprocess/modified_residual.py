@@ -6,7 +6,7 @@ from seisflows.tools.code import Struct, exists
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 
-from seisflows.seistools import adjoint, misfit, sbandpass, smute, readers, writers
+from seisflows.plugins import adjoint, misfit, sbandpass, smute, readers, writers
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()

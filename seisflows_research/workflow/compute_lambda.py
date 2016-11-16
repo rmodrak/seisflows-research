@@ -51,7 +51,7 @@ class compute_lambda(object):
             z = m['z'][0]
             mesh = stack(x, z)
         except:
-            from seisflows.seistools.io import loadbin
+            from seisflows.plugins.io import loadbin
             model_path = PATH.OUTPUT +'/'+ 'model_true'
             x = loadbin(model_path, 0, 'x')
             z = loadbin(model_path, 0, 'z')

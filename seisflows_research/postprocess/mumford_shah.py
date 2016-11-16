@@ -11,7 +11,7 @@ from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 from seisflows.tools.math import grad, nabla, nabla2
 
-from seisflows.seistools.io import sem
+from seisflows.plugins.io import sem
 
 PAR = SeisflowsParameters()
 PATH = SeisflowsPaths()

@@ -4,7 +4,7 @@ from os.path import join
 
 from seisflows.tools import unix
 
-from seisflows.seistools.io import copybin, savebin
+from seisflows.plugins.io import copybin, savebin
 from seisflows.tools.config import SeisflowsParameters, SeisflowsPaths, \
     ParameterError, custom_import
 

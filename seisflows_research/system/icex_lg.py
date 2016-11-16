@@ -1,5 +1,5 @@
 
-from getpass import getuser()
+from getpass import getuser
 from os.path import abspath, basename, join
 
 from seisflows.tools.config import ParameterError, SeisflowsParameters, SeisflowsPaths, custom_import
