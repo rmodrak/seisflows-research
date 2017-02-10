@@ -1,26 +1,23 @@
 
-from glob import glob
-from os.path import basename
-
 import copy
 import random
-
-from obspy.core import Stream, Trace
-
+import sys
 import numpy as np
+
+from glob import glob
+from os.path import basename
+from obspy.core import Stream, Trace
 
 from seisflows.tools import unix
 from seisflows.tools.code import Struct, exists
-from seisflows.config import , \
-    ParameterError, custom_import
+from seisflows.config import ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
-
-import system
-import solver
-import optimize
-import preprocess
+system = sys.modules['seisflows_system']
+solver = sys.modules['seisflows_solver']
+optimize = sys.modules['seisflows_optimize']
+preprocess = sys.modules['seisflows_preprocess']
 
 
 class source_encoding(custom_import('workflow', 'inversion')):
@@ -46,6 +43,8 @@ class source_encoding(custom_import('workflow', 'inversion')):
                 PAR.NT_PADDED = PAR.NT + (PAR.NSRC-1)*PAR.SHIFT
             else:
                 PAR.NT_PADDED = PAR.NT
+
+        assert PAR.NTASK == 1
 
 
     def setup(self):

@@ -1,19 +1,18 @@
 
+import sys
 import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.code import exists
-from seisflows.config import , \
-    ParameterError, custom_import
+from seisflows.config import ParameterError, custom_import
 
-from seisflows.plugins.shared import SeisStruct
-import seisflows.plugins.specfem2d as solvertools
+from seisflows.tools.shared import SeisStruct
+import seisflows.plugins.solver.specfem2d as solvertools
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
-
-import system
-import preprocess
+system = sys.modules['seisflows_system']
+preprocess = sys.modules['seisflows_preprocess']
 
 
 class source_encoding_2d(custom_import('solver', 'specfem2d')):
@@ -60,5 +59,4 @@ class source_encoding_2d(custom_import('solver', 'specfem2d')):
 
         with open('DATA/SOURCE', 'w') as f:
             f.writelines(lines)
-
 
