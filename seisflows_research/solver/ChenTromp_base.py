@@ -11,7 +11,7 @@ from seisflows.config import , \
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
+system = sys.modules['seisflows_system']
 
 
 class ChenTromp_base(custom_import('solver', 'specfem3d_legacy')):

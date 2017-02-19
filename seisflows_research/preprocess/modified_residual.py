@@ -2,7 +2,7 @@
 import numpy as np
 
 from seisflows.tools import unix
-from seisflows.tools.code import Struct, exists
+from seisflows.tools.tools import Struct, exists
 from seisflows.config import , \
     ParameterError, custom_import
 
@@ -67,7 +67,7 @@ class modified_residual(custom_import('preprocess', 'base')):
         """ Prepares solver for gradient evaluation by writing residuals and
           adjoint traces
         """
-        import system
+        system = sys.modules['seisflows_system']
 
         unix.cd(path)
 

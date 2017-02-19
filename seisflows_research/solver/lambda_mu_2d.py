@@ -4,7 +4,7 @@ from os.path import basename, join
 from seisflows.plugins.io import sem
 
 from seisflows.tools import unix
-from seisflows.tools.code import Struct, exists
+from seisflows.tools.tools import Struct, exists
 from seisflows.config import , \
     ParameterError, custom_import
 

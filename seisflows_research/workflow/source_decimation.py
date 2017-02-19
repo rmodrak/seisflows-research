@@ -3,18 +3,18 @@ import random
 import numpy as np
 
 from seisflows.tools import unix
-from seisflows.tools.code import Struct, exists
+from seisflows.tools.tools import Struct, exists
 from seisflows.config import , \
     ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
-import solver
-import optimize
-import preprocess
-import postprocess
+system = sys.modules['seisflows_system']
+solver = sys.modules['seisflows_solver']
+optimize = sys.modules['seisflows_optimize']
+preprocess = sys.modules['seisflows_preprocess']
+postprocess = sys.modules['seisflows_postprocess']
 
 from seisflows.workflow.inversion import base
 

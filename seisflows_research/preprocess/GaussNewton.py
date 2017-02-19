@@ -2,7 +2,7 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
-from seisflows.tools.code import loadtxt, savetxt
+from seisflows.tools.tools import loadtxt, savetxt
 from seisflows.config import , \
     ParameterError, custom_import
 

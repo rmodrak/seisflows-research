@@ -1,89 +1,114 @@
+
+import sys
 import numpy as np
 
-from seisflows.plugins import adjoint, misfit, sbandpass, smute
+from os.path import exists
+from obspy.core import Stream, Trace
 
+from seisflows.plugins import adjoint, misfit
 from seisflows.tools import unix
-from seisflows.tools.code import Struct
-from seisflows.config import , \
-    ParameterError, custom_import
+from seisflows.tools.tools import Struct
+from seisflows.config import ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
-import solver
+system = sys.modules['seisflows_system']
 
 
-class double_difference(custom_import('preprocess', 'legacy')):
+irec = 5
+
+class double_difference(custom_import('preprocess', 'base')):
     """ Data preprocessing class
     """
 
     def check(self):
         """ Checks parameters, paths, and dependencies
         """
-        super(DoubleDifference, self).check()
+        super(double_difference, self).check()
+
+        if PAR.MISFIT not in ['Traveltime']:
+            raise Exception
 
 
-    def prepare_eval_grad(self, path='.'):
-        """ Prepares solver for gradient evaluation by writing residuals and
-          adjoint traces
-        """
-        unix.cd(path)
-
-        d, h = self.load(prefix='traces/obs/')
-        s, _ = self.load(prefix='traces/syn/')
-
-        d = self.apply(self.process_traces, [d], [h])
-        s = self.apply(self.process_traces, [s], [h])
-
-        r = self.apply(self.write_residuals, [s, d], [h], inplace=False)
-
-        s = self.apply(self.generate_adjoint_traces, [s, d, r], [h])
-        self.save(s, h, prefix='traces/adj/')
-
-
-    def write_residuals(self, s, d, h):
+    def write_residuals(self, path, syn, dat):
         """ Computes residuals from observations and synthetics
         """
-        nr = h.nr
-        nt = h.nt
-        dt = h.dt
+        nt, dt, _ = self.get_time_scheme(syn)
+        nr, _ = self.get_network_size(syn)
 
-        r = np.zeros((nr, nr))
-        for ir in range(nr):
-            for jr in range(nr):
+        d = np.zeros((nr, nr))
+        dd = np.zeros((nr, nr))
 
-                if ir < jr:
-                    r[ir, jr] = (misfit.wtime(s[:, ir], s[:, jr], nt, dt) -
-                                 misfit.wtime(d[:, ir], d[:, jr], nt, dt))
+        for i in range(nr):
+            for j in range(irec):#range(i):
 
-                elif ir > jr:
-                    r[ir, jr] = -r[ir, jr]
-
-                else:
-                    r[ir, jr] = 0
+                print i,j
+                d[i,j] = self.misfit_dd(syn[i].data,syn[j].data,nt,dt)
+                dd[i,j] = d[i,j] - self.misfit_dd(dat[i].data,dat[j].data,nt,dt)
 
         # write residuals
-        np.savetxt('residuals', np.sqrt(np.sum(r*r, 0)))
+        filename = path +'/'+ 'residuals'
+        if exists(filename):
+            rsd = list(np.loadtxt(filename))
+        else:
+            rsd = []
+        for i in range(nr):
+            rsd += [np.sum(abs(dd), 0)]
+        np.savetxt(filename, rsd)
 
-        return np.array(r)
+        np.savetxt(path +'/'+ 'dij', d)
+        np.savetxt(path +'/'+ 'ddij', dd)
 
 
-    def generate_adjoint_traces(self, s, d, r, h):
+    def generate_adjoint_traces(self, path, syn, dat):
         """ Computes adjoint traces from observed and synthetic traces
         """
-        nr = h.nr
-        dt = h.dt
+        nt, dt, _ = self.get_time_scheme(syn)
+        nr, _ = self.get_network_size(syn)
 
-        for ir in range(nr):
-            nrm = sum((s[:, ir]*s[:, ir])*dt)
-            fit = np.sum(r[ir, :])
+        d = np.loadtxt(path +'/'+ 'dij')
+        dd = np.loadtxt(path +'/'+ 'ddij')
 
-            s[1:-1, ir] = (s[2:, ir] - s[0:-2, ir])/(2.*dt)
-            s[0, ir] = 0.
-            s[-1, ir] = 0.
-            s[:, ir] *= fit/nrm
+        adj = Stream()
+        for i in range(nr):
+            adj.append(Trace(
+                data=np.zeros(nt, dtype='float32'),
+                header=syn[i].stats))
 
-        return s
+        for i in range(nr):
+            for j in range(irec):#range(i):
 
+                ai = adj[i].data
+                aj = adj[j].data
+                si = syn[i].data
+                sj = syn[j].data
+
+                tmpi = self.adjsrc_dd(sj, si, -d[i,j], nt, dt)
+                tmpj = self.adjsrc_dd(si, sj, +d[i,j], nt, dt)
+
+                ai += dd[i,j] * tmpi
+                aj -= dd[i,j] * tmpj
+
+        return adj
+
+
+
+    def adjsrc_dd(self, si, sj, t0, nt, dt):
+        w = np.zeros(nt)
+        it = t0/dt
+        print it
+
+        w[1:-1] = (si[2:] - si[0:-2])/(2.*dt)
+
+        if t0 > 0: w[it:] = w[:-it]
+        if t0 < 0: w[-it:] = w[it:]
+
+        w *= 1./(sum(w*sj*dt))
+
+
+    def misfit_dd(self, si, sj, nt, dt):
+        cc = abs(np.convolve(si, np.flipud(sj)))
+        it = np.argmax(cc)
+        return (it-nt+1)*dt
 

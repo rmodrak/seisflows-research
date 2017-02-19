@@ -9,7 +9,7 @@ from os.path import basename
 from obspy.core import Stream, Trace
 
 from seisflows.tools import unix
-from seisflows.tools.code import Struct, exists
+from seisflows.tools.tools import Struct, exists
 from seisflows.config import ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
@@ -45,6 +45,7 @@ class source_encoding(custom_import('workflow', 'inversion')):
                 PAR.NT_PADDED = PAR.NT
 
         assert PAR.NTASK == 1
+        assert exists(PATH.DATA)
 
 
     def setup(self):

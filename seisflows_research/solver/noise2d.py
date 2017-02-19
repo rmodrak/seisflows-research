@@ -7,15 +7,15 @@ from scipy.interpolate import griddata
 
 from seisflows import seistools
 from seisflows.tools import unix
-from seisflows.tools.code import exists, setdiff, Struct
+from seisflows.tools.tools import exists, setdiff, Struct
 from seisflows.config import , \
     ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
-import preprocess
+system = sys.modules['seisflows_system']
+preprocess = sys.modules['seisflows_preprocess']
 
 
 class noise2d(custom_import('solver', 'specfem2d')):

@@ -4,7 +4,7 @@ from glob import glob
 import numpy as np
 
 from seisflows.tools import unix
-from seisflows.tools.code import cast, exists
+from seisflows.tools.tools import cast, exists
 from seisflows.config import , \
     ParameterError
 
@@ -13,10 +13,10 @@ from seisflows.plugins import adjoint
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
-import solver
-import preprocess
-import postprocess
+system = sys.modules['seisflows_system']
+solver = sys.modules['seisflows_solver']
+preprocess = sys.modules['seisflows_preprocess']
+postprocess = sys.modules['seisflows_postprocess']
 
 
 class compute_precond(object):

@@ -5,7 +5,7 @@ from seisflows.plugins.io import copybin, loadbypar, savebin, splitvec, Minmax
 from seisflows.plugins.io import Model as IOStruct
 
 from seisflows.tools import unix
-from seisflows.tools.code import exists
+from seisflows.tools.tools import exists
 from seisflows.config import , \
     ParameterError, custom_import
 
@@ -24,9 +24,6 @@ class anisotropic(custom_import('solver', 'elastic')):
     model_parameters += ['c33']
     model_parameters += ['c35']
     model_parameters += ['c55']
-    #model_parameters += ['c12']
-    #model_parameters += ['c23']
-    #model_parameters += ['c25']
 
 
     if PAR.MATERIALS == 'ChenTromp2d':

@@ -12,7 +12,7 @@ from seisflows.config import , \
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
+system = sys.modules['seisflows_system']
 
 
 class source_decimation(custom_import('solver', 'base')):

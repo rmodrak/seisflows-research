@@ -3,15 +3,15 @@ import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.array import loadnpy, savenpy
-from seisflows.tools.code import exists
+from seisflows.tools.tools import exists
 from seisflows.config import , \
     ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
-import system
-import solver
+system = sys.modules['seisflows_system']
+solver = sys.modules['seisflows_solver']
 
 
 class ChenTromp(custom_import('postprocess', 'base')):
