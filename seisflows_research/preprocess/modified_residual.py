@@ -1,28 +1,31 @@
 
+import sys
 import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.tools import Struct, exists
-from seisflows.config import , \
-    ParameterError, custom_import
+from seisflows.config import ParameterError, custom_import
 
-from seisflows.plugins import adjoint, misfit, sbandpass, smute, readers, writers
+from seisflows.plugins import adjoint, misfit, readers, writers
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
+system = sys.modules['seisflows_system']
+
 
 class modified_residual(custom_import('preprocess', 'base')):
-    """ Data preprocessing class
+    """ Allows weighted inversion
+
+     By modifying residuals and adjoint traces, weights the objective function 
+     function differently; can be useful for balancing lopsided station or
+     event distributions, among other things
     """
 
     def check(self):
         """ Checks parameters and paths
         """
         super(modified_residual, self).check()
-
-        if 'EXPONENT' not in PAR:
-            setattr(PAR, 'EXPONENT', 1.0)
 
         if 'RECEIVER_WEIGHTS' not in PATH:
             setattr(PATH, 'RECEIVER_WEIGHTS', None)
@@ -37,95 +40,56 @@ class modified_residual(custom_import('preprocess', 'base')):
             assert exists(PATH.SOURCE_WEIGHTS)
 
 
-    def setup(self):
-        """ Called once at beginning of workflow to perform any required
-          initialization or setup tasks
-        """
-        super(modified_residual, self).setup()
+    def write_residuals(self, path, syn, dat):
+        nt, dt, _ = self.get_time_scheme(syn)
+        nn, _ = self.get_network_size(syn)
+
+        wr = self.receiver_weights()
+        ws = self.source_weights()
+
+        rsd = []
+        for ii in range(nn):
+            rsd.append(self.misfit(syn[ii].data, dat[ii].data, nt, dt))
+
+        # apply weights
+        rsd *= wr
+        rsd[ii] *= ws[system.getnode()]
+
+        filename = path+'/'+'residuals'
+        if exists(filename):
+            rsd.extend(list(np.loadtxt(filename)))
+
+        np.savetxt(filename, rsd)
 
 
-    def load_weights(self, h):
+    def write_adjoint_traces(self, path, syn, dat, channel):
+        nt, dt, _ = self.get_time_scheme(syn)
+        nn, _ = self.get_network_size(syn)
+
+        wr = self.receiver_weights()
+        ws = self.source_weights()
+
+        adj = syn
+        for ii in range(nn):
+            adj[ii].data = self.adjoint(syn[ii].data, dat[ii].data, nt, dt)
+
+            # apply weights
+            adj[ii].data *= wr[ii]
+            adj[ii].data *= ws
+
+        np.savetxt(filename, rsd)
+
+
+    def receiver_weights(self):
         if PATH.RECEIVER_WEIGHTS:
-            wr = np.loadtxt(PATH.RECEIVER_WEIGHTS)
+            return np.loadtxt(PATH.RECEIVER_WEIGHTS)[:,-1]
         else:
-            wr = self.compute_weights(h.rx, h.rz)
+            return 1.
 
+
+    def source_weights(self):
         if PATH.SOURCE_WEIGHTS:
-            ws = np.loadtxt(PATH.SOURCE_WEIGHTS)
+            return np.loadtxt(PATH.SOURCE_WEIGHTS)[:,-1][system.getnode()]
         else:
-            ws = self.compute_weights(h.sx, h.sz)
-
-        if PAR.EXPONENT:
-            wr **= PAR.EXPONENT
-            ws **= PAR.EXPONENT
-
-        self.weights_rec = wr
-        self.weights_src = ws
-
-
-    def prepare_eval_grad(self, path='.'):
-        """ Prepares solver for gradient evaluation by writing residuals and
-          adjoint traces
-        """
-        system = sys.modules['seisflows_system']
-
-        unix.cd(path)
-
-        d, h = self.load(prefix='traces/obs/')
-        s, _ = self.load(prefix='traces/syn/')
-
-        d = self.apply(self.process_traces, [d], [h])
-        s = self.apply(self.process_traces, [s], [h])
-
-        r = self.apply(self.write_residuals, [s, d], [h], inplace=False)
-        s = self.apply(self.generate_adjoint_traces, [s, d], [h])
-
-        if not hasattr(self, 'weights_rec') or \
-           not hasattr(self, 'weights_src'): self.load_weights(h)
-
-        wr = self.weights_rec
-        ws = self.weights_src
-
-        # apply receiver weights
-        for key in self.channels:
-            for ir in range(h.nr):
-                if wr.ndim == 1:
-                    s[key][:,ir] *= wr[ir]
-                    r[key][ir] *= wr[ir]
-                elif wr.ndim == 2:
-                    s[key][:,ir] = np.dot(s[key][:,:],wr[:,ir])
-                    r[key][ir] *= wr[ir,ir]
-
-        # apply source weights
-        for key in self.channels:
-            s[key] *= ws[system.getnode()]
-            r[key] *= ws[system.getnode()]
-
-        self.save(s, h, prefix='traces/adj/')
-
-        for key in self.channels:
-            np.savetxt('residuals', r[key])
-
-
-    def compute_weights(self, x, y):
-        L = PAR.LENGTH
-        n = x.size
-        w = np.zeros(n)
-        for i in range(n):
-            R = distance(x[i], y[i], x, y)
-            w[i] = sum(np.exp(-(R/L)**2.))**(-1.)
-        w /= sum(w)
-        w *= n
-        return w
-
-
-def distance(lat1, lon1, lat2, lon2):
-    """ Haversine formula, modified from script by Wayne Dyck
-    """
-    dlat = np.radians(lat2-lat1)
-    dlon = np.radians(lon2-lon1)
-    a = np.sin(dlat/2) * np.sin(dlat/2) + np.cos(np.radians(lat1)) \
-        * np.cos(np.radians(lat2)) * np.sin(dlon/2) * np.sin(dlon/2)
-    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-    return c
+            return 1.
 
