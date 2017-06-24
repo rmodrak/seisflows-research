@@ -7,7 +7,6 @@ import numpy as np
 from glob import glob
 from os.path import basename
 from obspy.core import Stream, Trace
-
 from seisflows.tools import unix
 from seisflows.tools.tools import Struct, exists
 from seisflows.config import ParameterError, custom_import
@@ -157,7 +156,7 @@ class source_encoding(custom_import('workflow', 'inversion')):
                     data_sum[ir].data[imin:imax] += data[ir].data[imin:imax]
 
             # save to disk
-            fullname = solver.getpath +'/'+ 'traces/' + tag
+            fullname = solver.cwd +'/'+ 'traces/' + tag
             preprocess.writer(data_sum, fullname, filename)
 
 

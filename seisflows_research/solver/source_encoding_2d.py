@@ -6,7 +6,6 @@ from seisflows.tools import unix
 from seisflows.tools.tools import exists
 from seisflows.config import ParameterError, custom_import
 
-from seisflows.tools.shared import SeisStruct
 import seisflows.plugins.solver.specfem2d as solvertools
 
 PAR = sys.modules['seisflows_parameters']
@@ -38,19 +37,19 @@ class source_encoding_2d(custom_import('solver', 'specfem2d')):
         """
         solvertools.write_receivers(
             coords,
-            self.getpath)
+            self.cwd)
 
 
     def write_sources(self, coords, stats=[], mapping=lambda i: [i]):
         """ Writes sources file
         """
-        unix.cd(self.getpath)
-        nodes = mapping(system.getnode())
+        unix.cd(self.cwd)
+        nodes = mapping(system.taskid())
         lines = []
         for i in nodes:
             solvertools.write_sources(
                 [coords[0][i], coords[1][i], coords[2][i]],
-                self.getpath,
+                self.cwd,
                 stats['ws'][i])
 
             with open('DATA/SOURCE', 'r') as f:
