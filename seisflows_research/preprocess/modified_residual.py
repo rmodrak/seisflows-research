@@ -33,27 +33,33 @@ class modified_residual(custom_import('preprocess', 'base')):
         if 'SOURCE_WEIGHTS' not in PATH:
             setattr(PATH, 'SOURCE_WEIGHTS', None)
 
+
+        # assertions
         if PATH.RECEIVER_WEIGHTS:
             assert exists(PATH.RECEIVER_WEIGHTS)
 
         if PATH.SOURCE_WEIGHTS:
             assert exists(PATH.SOURCE_WEIGHTS)
 
+        assert 'NREC' in PAR
+        assert 'NSRC' in PAR
+
+
 
     def write_residuals(self, path, syn, dat):
         nt, dt, _ = self.get_time_scheme(syn)
         nn, _ = self.get_network_size(syn)
 
+        rsd = np.zeros(nn)
+        for ii in range(nn):
+            rsd[ii] = self.misfit(syn[ii].data, dat[ii].data, nt, dt)
+
+        # apply weights
         wr = self.receiver_weights()
         ws = self.source_weights()
 
-        rsd = []
-        for ii in range(nn):
-            rsd.append(self.misfit(syn[ii].data, dat[ii].data, nt, dt))
-
-        # apply weights
         rsd *= wr
-        rsd[ii] *= ws[system.getnode()]
+        rsd[ii] *= ws
 
         filename = path+'/'+'residuals'
         if exists(filename):
@@ -77,19 +83,19 @@ class modified_residual(custom_import('preprocess', 'base')):
             adj[ii].data *= wr[ii]
             adj[ii].data *= ws
 
-        np.savetxt(filename, rsd)
+        self.writer(adj, path, channel)
 
 
     def receiver_weights(self):
         if PATH.RECEIVER_WEIGHTS:
             return np.loadtxt(PATH.RECEIVER_WEIGHTS)[:,-1]
         else:
-            return 1.
+            return np.ones(PAR.NREC)
 
 
     def source_weights(self):
         if PATH.SOURCE_WEIGHTS:
-            return np.loadtxt(PATH.SOURCE_WEIGHTS)[:,-1][system.getnode()]
+            return np.loadtxt(PATH.SOURCE_WEIGHTS)[system.taskid(),-1]
         else:
             return 1.
 
