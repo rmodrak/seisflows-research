@@ -1,11 +1,11 @@
-import random
 
+import sys
+import random
 import numpy as np
 
 from seisflows.tools import unix
 from seisflows.tools.tools import Struct, exists
-from seisflows.config import , \
-    ParameterError, custom_import
+from seisflows.config import ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']

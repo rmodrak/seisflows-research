@@ -29,19 +29,19 @@ class source_decimation(custom_import('solver', 'base')):
 
 
     @property
-    def getnode(self):
+    def taskid(self):
         try:
-            ii = system.getnode()
+            ii = system.taskid()
         except:
             ii = 0
         return ii
 
 
     @property
-    def getpath(self):
+    def cwd(self):
         assert hasattr(self, '_source_subset')
 
-        ii = self.getnode
+        ii = self.taskid
         jj = self._source_subset[ii]
 
         name = self.check_source_names()[jj]
@@ -70,7 +70,7 @@ class source_decimation(custom_import('solver', 'base')):
         """ Sums individual source contributions. Wrapper over xcombine_sem
             utility.
         """
-        unix.cd(self.getpath)
+        unix.cd(self.cwd)
 
         names = self.check_source_names()
         subset = [names[isrc] for isrc in self._source_subset]
