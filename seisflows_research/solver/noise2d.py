@@ -194,7 +194,7 @@ class noise2d(custom_import('solver', 'specfem2d')):
         unix.mkdir('OUTPUT_FILES/NOISE_TOMOGRAPHY')
 
         with open('DATA/NOISE_TOMOGRAPHY/irec_master', 'w') as myfile:
-            myfile.write(str(system.getnode() + 1) + '\n')
+            myfile.write(str(system.taskid() + 1) + '\n')
 
     def data_wildcard(self):
         return glob('OUTPUT_FILES/*.semd')

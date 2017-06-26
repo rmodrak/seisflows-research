@@ -85,7 +85,7 @@ class regularize(custom_import('postprocess', 'base')):
         import preprocess
         preprocess.setup()
 
-        name = solver.check_source_names()[solver.getnode]
+        name = solver.check_source_names()[solver.taskid]
         fullpath = path +'/'+ name
         g = solver.load(fullpath, suffix='_kernel')
         if not PAR.FIXRADIUS:
@@ -106,11 +106,11 @@ class regularize(custom_import('postprocess', 'base')):
 
         sx, sy, sz = preprocess.get_source_coords(
             preprocess.reader(
-                solver.getpath+'/'+'traces/obs', solver.data_filenames[0]))
+                solver.cwd+'/'+'traces/obs', solver.data_filenames[0]))
 
         rx, ry, rz = preprocess.get_receiver_coords(
             preprocess.reader(
-                solver.getpath+'/'+'traces/obs', solver.data_filenames[0]))
+                solver.cwd+'/'+'traces/obs', solver.data_filenames[0]))
 
         # mask sources
         mask = np.exp(-0.5*((x-sx[0])**2.+(z-sy[0])**2.)/sigma**2.)

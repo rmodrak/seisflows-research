@@ -1,18 +1,17 @@
 
+import sys
+
 from os.path import basename, join
-
 from seisflows.plugins.io import sem
-
 from seisflows.tools import unix
 from seisflows.tools.tools import Struct, exists
-from seisflows.config import , \
-    ParameterError, custom_import
+from seisflows.config import ParameterError, custom_import
 
 PAR = sys.modules['seisflows_parameters']
 PATH = sys.modules['seisflows_paths']
 
 
-def getstruct(args):
+def getstruct(*args):
     return Struct(zip(sem.mread(*args)))
 
 
@@ -47,11 +46,11 @@ class lambda_mu_2d(custom_import('solver', 'elastic2d')):
         model_parameters = ['rho', 'vp', 'vs']
         kernel_parameters = ['rho', 'kappa', 'mu']
 
-        model = getstruct(self.getpath+'/'+'DATA/', model_parameters, iproc)
-        kernels = getstruct(self.getpath+'/'+'OUTPUT_FILES/', kernel_parameters, iproc, suffix='_kernel')
+        model = getstruct(self.cwd+'/'+'DATA/', model_parameters, iproc)
+        kernels = getstruct(self.cwd+'/'+'OUTPUT_FILES/', kernel_parameters, iproc, suffix='_kernel')
 
-        unix.mkdir(join(path, basename(self.getpath)))
-        self.save(join(path, basename(self.getpath)), map(model, kernels), suffix='_kernel')
+        unix.mkdir(join(path, basename(self.cwd)))
+        self.save(join(path, basename(self.cwd)), map(model, kernels), suffix='_kernel')
 
         
 

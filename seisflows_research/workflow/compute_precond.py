@@ -20,6 +20,8 @@ postprocess = sys.modules['seisflows_postprocess']
 
 
 class compute_precond(object):
+    """ Computes diagonal preconditioner described by Modrak et al 2016
+    """
 
     def check(self):
         """ Checks parameters and paths
@@ -92,7 +94,7 @@ class compute_precond(object):
         assert(model_type)
         assert (exists(model_path))
 
-        unix.cd(solver.getpath)
+        unix.cd(solver.cwd)
 
         src = model_path
         dst = solver.model_databases
@@ -101,7 +103,7 @@ class compute_precond(object):
         solver.forward()
         unix.mv(solver.data_wildcard, 'traces/syn')
         solver.initialize_adjoint_traces('traces/syn')
-        self.process_traces(solver.getpath)
+        self.process_traces(solver.cwd)
 
         solver.adjoint()
         solver.export_kernels(PATH.GLOBAL)
