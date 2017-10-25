@@ -108,8 +108,7 @@ class newton(custom_import('optimize', 'base')):
         solver.save(solver.split(m + h*dm), 
                 PATH.HESS+'/'+'model')
 
-        system.run('solver', 'apply_hess',
-                hosts='all',
+        system.run('optimize', 'apply_hess',
                 path=PATH.HESS)
 
         postprocess.write_gradient(
@@ -141,33 +140,45 @@ class newton(custom_import('optimize', 'base')):
         pass
 
 
+    def apply_hess(self, path=''):
+        """ Computes action of Hessian on a given model vector.
+        """
+        solver = sys.modules['seisflows_solver']
+
+        unix.cd(solver.cwd)
+        solver.import_model(path)
+        unix.mkdir('traces/lcg')
+        solver.forward('traces/lcg')
+        self.prepare_apply_hess(solver.cwd)
+        solver.adjoint()
+        solver.export_kernels(path)
+
+
     def prepare_apply_hess(self, path='.'):
         """ Prepares solver to compute action of Hessian by writing adjoint traces
         """
         solver = sys.modules['seisflows_solver']
+        preprocess = sys.modules['seisflows_preprocess']
 
         tag1, tag2 = self.apply_hess_tags()
 
         for filename in solver.data_filenames:
-            dat1 = self.reader(path+'/'+'traces/'+tag1, filename)
-            dat2 = self.reader(path+'/'+'traces/'+tag2, filename)
+            dat1 = preprocess.reader(path+'/'+'traces/'+tag1, filename)
+            dat2 = preprocess.reader(path+'/'+'traces/'+tag2, filename)
 
-            dat1 = self.apply_filter(dat1)
-            dat1 = self.apply_mute(dat1)
-            dat1 = self.apply_normalize(dat1)
+            dat1 = preprocess.apply_filter(dat1)
+            dat1 = preprocess.apply_mute(dat1)
+            dat1 = preprocess.apply_normalize(dat1)
 
-            dat2 = self.apply_filter(dat2)
-            dat2 = self.apply_mute(dat2)
-            dat2 = self.apply_normalize(dat2)
+            dat2 = preprocess.apply_filter(dat2)
+            dat2 = preprocess.apply_mute(dat2)
+            dat2 = preprocess.apply_normalize(dat2)
 
-            self.write_adjoint_traces(path+'/'+'traces/adj', dat1, dat2, filename)
-
+            preprocess.write_adjoint_traces(path+'/'+'traces/adj', dat1, dat2, filename)
 
 
     def apply_hess_tags(self):
-        if 'OPTIMIZE' not in PAR:
-           tag1, tag2 = 'lcg', 'obs'
-        elif PAR.OPTIMIZE in ['newton']:
+        if PAR.OPTIMIZE in ['newton']:
            tag1, tag2 = 'lcg', 'obs'
         elif PAR.OPTIMIZE in ['gauss_newton']:
            tag1, tag2 = 'lcg', 'syn'
